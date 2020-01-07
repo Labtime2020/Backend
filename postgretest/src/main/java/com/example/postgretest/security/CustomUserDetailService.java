@@ -3,7 +3,7 @@ package com.example.postgretest.security;
 import java.util.ArrayList;
 
 import com.example.postgretest.model.Aluno;
-import com.example.postgretest.repository.AlunoRepository;
+import com.example.postgretest.repository.UserRepository;
 
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -24,13 +24,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Service
 public class CustomUserDetailService implements UserDetailsService {
     @Autowired
-	AlunoRepository repository;
+	UserRepository repository;
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        Aluno user = repository.findById((long)1).get();
+        com.example.postgretest.model.Usuario user = repository.findById((long)1).get();
 
-        User userItem = new User(user.getNomeAluno(), "{noop}" + user.getNomeAluno(),true,true,true,true, AuthorityUtils.createAuthorityList("ROLE_ADMIN", "ROLE_USER"));
+        User userItem = new User(user.getEmail(), "{noop}" + user.getEmail(),true,true,true,true, AuthorityUtils.createAuthorityList("ROLE_ADMIN", "ROLE_USER"));
 
         return userItem;
     }

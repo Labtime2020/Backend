@@ -43,9 +43,7 @@ public class Usuario{
     @NotBlank
     @Size(max=15)
     private String password;
-    @NotBlank
     private int status;//situacao do usuario
-    @NotBlank
     private boolean isAdmin;
     @Column
     @Temporal(TemporalType.DATE)
@@ -60,12 +58,14 @@ public class Usuario{
     public Usuario(){
     }
 
-    public Usuario(long id, String nome, String email, String sobrenome, boolean isAdmin) {
+    public Usuario(long id, String nome, String email, String sobrenome, String password, boolean isAdmin) {
         this.id = id;
         this.nome = nome;
         this.email = email;
         this.sobrenome = sobrenome;
         this.password = password;
+        this.status = 1;
+        this.isAdmin = isAdmin;
     }
     
 
