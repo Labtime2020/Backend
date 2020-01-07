@@ -24,7 +24,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name="user")
-public class User{
+public class Usuario{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "serial")
@@ -52,10 +52,10 @@ public class User{
     @Column
     private Date adminEndDate;
     
-    public User(){
+    public Usuario(){
     }
 
-    public User(long id, String nome, String email, String sobrenome, String password) {
+    public Usuario(long id, String nome, String email, String sobrenome, boolean isAdmin) {
         this.id = id;
         this.nome = nome;
         this.email = email;

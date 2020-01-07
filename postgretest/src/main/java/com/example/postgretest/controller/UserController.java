@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package com.example.postgretest.Controller;
-import com.example.postgretest.model.User;
+import com.example.postgretest.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.postgretest.repository.UserRepository;
+import java.util.Date;
 /**
  *
  * @author labtime
@@ -26,9 +27,10 @@ public class UserController {
     
     @GetMapping(path="/addUser")
     //public @ResponseBody String insertUser(@RequestParam String nome, @RequestParam String email, @RequestParam String sobrenome, @RequestParam String password){
-    public String insertData(){
-        User t = new User(123, "teste","teste","teste","teste");
-        t.setIsAdmin(false);
+    public @ResponseBody String insertData(@RequestParam String nome
+    , @RequestParam String email, @RequestParam String sobrenome, @RequestParam boolean isAdmin){
+        Usuario t = new Usuario(123, nome, email, sobrenome, isAdmin);
+        
         userRepository.save(t);
         return "User has been added to the database";
     }
