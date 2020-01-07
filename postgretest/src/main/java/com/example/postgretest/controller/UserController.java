@@ -36,7 +36,7 @@ public class UserController {
         userRepository.save(t);
         return "User has been added to the database";
     }
-    @GetMapping(path="/updateUser")
+    @PostMapping(path="/updateUser")
     public @ResponseBody String updateData(@RequestBody UsuarioUI user){
         try{
             
@@ -45,4 +45,5 @@ public class UserController {
         }
         return "Dados alterados com sucesso";
     }
+    
 }
