@@ -28,9 +28,8 @@ public class UserController {
     
     @GetMapping(path="/addUser")
     //public @ResponseBody String insertUser(@RequestParam String nome, @RequestParam String email, @RequestParam String sobrenome, @RequestParam String password){
-    public @ResponseBody String insertData(@RequestParam String nome
-    , @RequestParam String email, @RequestParam String sobrenome, @RequestParam boolean isAdmin){
-        Usuario t = new Usuario(123, nome, email, sobrenome, isAdmin);
+    public @ResponseBody String insertData(){
+        Usuario t = new Usuario(1, "andre", "andre@gmail.com", "boy", "andre123", true);
         t.setRegisterDate(new Date());/*falta converter para a data atual*/
         userRepository.save(t);
         return "User has been added to the database";
