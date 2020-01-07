@@ -7,7 +7,7 @@ package com.example.postgretest.Controller;
 
 
 import java.util.List;
-import com.example.postgretest.Resposta;
+import com.example.postgretest.Controller.Resposta;
 import com.example.postgretest.model.Usuario;
 import com.example.postgretest.model.UsuarioUI;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.postgretest.repository.UserRepository;
 import java.util.Date;
 import java.time.LocalDate;
+
+import org.springframework.web.bind.annotation.RequestBody;
 /**
  *
  * @author labtime
@@ -35,7 +37,7 @@ public class User1Controller {
     public Resposta cadastrar(@RequestBody UsuarioUI usuario){
     	System.out.println("Cadastrando Usuario");
 
-    	List<User> users = userRepository.findByEmail(usuario.email);
+    	List<Usuario> users = userRepository.findByEmail(usuario.email);
 
     	if(users.size() > 0){
     		return new Resposta(1, "Usuario com mesmo email ja cadastrado");
