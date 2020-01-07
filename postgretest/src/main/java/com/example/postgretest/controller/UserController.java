@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.postgretest.repository.UserRepository;
 import java.util.Date;
+import java.time.LocalDate;
 /**
  *
  * @author labtime
@@ -30,7 +31,7 @@ public class UserController {
     public @ResponseBody String insertData(@RequestParam String nome
     , @RequestParam String email, @RequestParam String sobrenome, @RequestParam boolean isAdmin){
         Usuario t = new Usuario(123, nome, email, sobrenome, isAdmin);
-        
+        t.setRegisterDate(new Date());/*falta converter para a data atual*/
         userRepository.save(t);
         return "User has been added to the database";
     }

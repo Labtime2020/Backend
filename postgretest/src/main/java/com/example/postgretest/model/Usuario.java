@@ -15,6 +15,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -23,7 +25,7 @@ import javax.validation.constraints.Size;
  * @author labtime
  */
 @Entity
-@Table(name="user")
+@Table(name="Usuario")
 public class Usuario{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,10 +48,13 @@ public class Usuario{
     @NotBlank
     private boolean isAdmin;
     @Column
+    @Temporal(TemporalType.DATE)
     private Date registerDate;
     @Column
+    @Temporal(TemporalType.DATE)
     private Date adminBeginDate;
     @Column
+    @Temporal(TemporalType.DATE)
     private Date adminEndDate;
     
     public Usuario(){
