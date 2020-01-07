@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.postgretest.repository.UserRepository;
 import java.util.Date;
 import java.time.LocalDate;
+import com.example.postgretest.model.UsuarioUI;
+import org.springframework.web.bind.annotation.RequestBody;
 /**
  *
  * @author labtime
@@ -34,5 +36,13 @@ public class UserController {
         userRepository.save(t);
         return "User has been added to the database";
     }
-    
+    @GetMapping(path="/updateUser")
+    public @ResponseBody String updateData(@RequestBody UsuarioUI user){
+        try{
+            
+            
+        }catch(Exception e){
+        }
+        return "Dados alterados com sucesso";
+    }
 }

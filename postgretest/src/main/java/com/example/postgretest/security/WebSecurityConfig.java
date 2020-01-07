@@ -19,6 +19,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity HttpSecurity) throws Exception {
 		HttpSecurity.csrf().disable().authorizeRequests()
 			.antMatchers("/addUser").permitAll()
+                        .antMatchers("/updateUser").permitAll()
 			.antMatchers(HttpMethod.POST, "/login").permitAll()
 			.anyRequest().authenticated()
 			.and()
