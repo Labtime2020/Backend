@@ -18,7 +18,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity HttpSecurity) throws Exception {
 		HttpSecurity.csrf().disable().authorizeRequests()
-			.antMatchers("/bulkcreatealuno").permitAll()
+			.antMatchers("/addUser").permitAll()
 			.antMatchers(HttpMethod.POST, "/login").permitAll()
 			.anyRequest().authenticated()
 			.and()
