@@ -9,7 +9,7 @@ package com.example.postgretest.Controller;
  *
  * @author labtime
  */
-import com.example.postgretest.model.User;
+import com.example.postgretest.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
