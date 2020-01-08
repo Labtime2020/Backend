@@ -10,13 +10,14 @@ package com.example.postgretest.model;
  * @author labtime
  */
 public class UsuarioUI {
+    public Long id;
     public String email;
     public String nome;
     public String sobrenome;
     public String password;
     public boolean isAdmin;
 
-    public UsuarioUI(String email, String nome, String sobrenome, boolean isAdmin, String password) {
+    public UsuarioUI( String email, String nome, String sobrenome, boolean isAdmin, String password) {
         this.email = email;
         this.nome = nome;
         this.sobrenome = sobrenome;
@@ -24,6 +25,10 @@ public class UsuarioUI {
         this.password = password;
     }
 
+    public Long getId() {
+        return id;
+    }
+    
     public String getEmail() {
         return email;
     }
@@ -62,6 +67,10 @@ public class UsuarioUI {
 
     public void setIsAdmin(boolean isAdmin) {
         this.isAdmin = isAdmin;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
     
     
