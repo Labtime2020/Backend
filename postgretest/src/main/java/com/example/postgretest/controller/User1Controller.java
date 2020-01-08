@@ -59,7 +59,7 @@ public class User1Controller {
     	List<UsuarioUI> usuarios = new ArrayList<>();
 
     	for(Usuario user: users){
-    		usuarios.add(new UsuarioUI(user.getId(),user.getEmail(), user.getNome(), user.getSobrenome(),
+    		usuarios.add(new UsuarioUI(user.getEmail(), user.getNome(), user.getSobrenome(),
     			user.getIsAdmin(), user.getPassword(), user.getStatus()));
     	}
 
