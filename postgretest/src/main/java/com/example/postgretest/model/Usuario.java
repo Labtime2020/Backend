@@ -5,6 +5,8 @@
  */
 package com.example.postgretest.model;
 
+import java.io.Serializable;
+
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,7 +28,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name="Usuario")
-public class Usuario{
+public class Usuario implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "serial")
@@ -73,7 +75,7 @@ public class Usuario{
         return status;
     }
 
-    public boolean isIsAdmin() {
+    public boolean getIsAdmin() {
         return isAdmin;
     }
 
@@ -149,5 +151,7 @@ public class Usuario{
         this.adminEndDate = adminEndDate;
     }
     
-    
+    public Usuario at() {
+        return this;
+    }
 }

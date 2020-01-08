@@ -21,6 +21,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/addUser").permitAll()
                         .antMatchers("/updateUser").permitAll()
                         .antMatchers("/cadastrar").permitAll()
+                        .antMatchers("/buscarusuarios").permitAll()
 			.antMatchers(HttpMethod.POST, "/login").permitAll()
 			.anyRequest().authenticated()
 			.and()

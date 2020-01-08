@@ -5,8 +5,11 @@
  */
 package com.example.postgretest.Controller;
 
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
 import com.example.postgretest.Controller.Resposta;
 import com.example.postgretest.model.Usuario;
 import com.example.postgretest.model.UsuarioUI;
@@ -46,5 +49,20 @@ public class User1Controller {
     		
     		return new Resposta(0, "Usuario criado com sucesso");
     	}
+    }
+
+    @GetMapping("/buscarusuarios")
+    public List<UsuarioUI> buscarusuarios(){
+    	System.out.println("Buscando todos os usuarios");
+
+    	List<Usuario> users = userRepository.findAll();
+    	List<UsuarioUI> usuarios = new ArrayList<>();
+
+    	for(Usuario user: users){
+    		usuarios.add(new UsuarioUI(user.getEmail(), user.getNome(), user.getSobrenome(),
+    			user.getIsAdmin(), user.getPassword()));
+    	}
+
+    	return usuarios;
     }
 }
