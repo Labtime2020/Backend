@@ -55,7 +55,7 @@ public class UserController {
         userRepository.save(a);
         return "Data has been modified";
     }
-    @PostMapping(path="/addUserAdmin")
+    @PostMapping(path="/addUserAsAdmin")
     public @ResponseBody String addAdmin(@RequestBody UsuarioUI user ){
         
         try{
@@ -72,7 +72,7 @@ public class UserController {
         return "User permission has changed";
         
     }
-    @PostMapping(path="/removeUserAdmin")
+    @PostMapping(path="/removeUserAsAdmin")
     public @ResponseBody String removeAdmin(@RequestBody UsuarioUI user){
         try{
         if( userRepository.findByEmail(user.email).isEmpty() )
