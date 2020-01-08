@@ -17,6 +17,9 @@ import com.example.postgretest.repository.UserRepository;
 import java.util.Date;
 import java.time.LocalDate;
 import com.example.postgretest.model.UsuarioUI;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import org.springframework.web.bind.annotation.RequestBody;
 /**
  *
@@ -38,12 +41,18 @@ public class UserController {
     }
     @PostMapping(path="/updateUser")
     public @ResponseBody String updateData(@RequestBody UsuarioUI user){
-        try{
-            
-            
-        }catch(Exception e){
-        }
-        return "Dados alterados com sucesso";
+        System.out.println(user.getEmail());
+        if( userRepository.findByEmail(user.email).isEmpty() )
+            return "Usuario nao encontrado";
+        Usuario a =  userRepository.findByEmail(user.email).get(0);
+        
+        a.setEmail(user.getEmail());
+        a.setNome(user.getNome());
+        a.setPassword(user.getPassword());
+        a.setSobrenome(user.getSobrenome());
+        System.out.println(a.getId());
+        userRepository.save(a);
+        return "Dados inseridos!";
     }
    
 }
