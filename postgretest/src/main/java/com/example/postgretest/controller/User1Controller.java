@@ -45,7 +45,7 @@ public class User1Controller {
     	if(users.size() > 0){
     		return new Resposta(1, "Usuario com mesmo email ja cadastrado");
     	}else{
-    		userRepository.save(new Usuario(123, usuario.nome, usuario.email, usuario.sobrenome, usuario.password, usuario.isAdmin));
+    		userRepository.save(new Usuario(123, usuario.nome, usuario.email, usuario.sobrenome, usuario.password, usuario.isAdmin, 1));
     		
     		return new Resposta(0, "Usuario criado com sucesso");
     	}
@@ -59,8 +59,8 @@ public class User1Controller {
     	List<UsuarioUI> usuarios = new ArrayList<>();
 
     	for(Usuario user: users){
-    		usuarios.add(new UsuarioUI(user.getEmail(), user.getNome(), user.getSobrenome(),
-    			user.getIsAdmin(), user.getPassword()));
+    		usuarios.add(new UsuarioUI(user.getId(),user.getEmail(), user.getNome(), user.getSobrenome(),
+    			user.getIsAdmin(), user.getPassword(), user.getStatus()));
     	}
 
     	return usuarios;
