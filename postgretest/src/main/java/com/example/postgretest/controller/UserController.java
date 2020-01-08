@@ -37,14 +37,14 @@ public class UserController {
     @PostMapping(path="/addUser")
     //public @ResponseBody String insertUser(@RequestParam String nome, @RequestParam String email, @RequestParam String sobrenome, @RequestParam String password){
     public @ResponseBody Resposta insertData(@RequestBody UsuarioUI user){
-        if(!userRepository.findByEmail(user.getEmail()).isEmpty()){
+        if(userRepository.findByEmail(user.getEmail()).isEmpty()){
             Usuario t = new Usuario(user.getId(), user.getNome(), user.getEmail(), user.getSobrenome(), user.getPassword(), false, 1);
             t.setRegisterDate(new Date());/*falta converter para a data atual*/
             userRepository.save(t);
             return new Resposta(OK, "User added");
         }
         else
-            return new Resposta(ERRO,"User with email " + user.getEmail() + "already exists!");
+            return new Resposta(ERRO,"User with email " + user.getEmail() + " already exists!");
     }
     @PostMapping(path="/updateUser")
     public @ResponseBody Resposta updateData(@RequestBody UsuarioUI user){
@@ -76,7 +76,8 @@ public class UserController {
         a.setAdminBeginDate(new Date());
         a.setAdminEndDate(null);
         userRepository.save(a);
-        System.out.println(userRepository.findByIsAdmin(true).get(0).getNome() + "hahahahahah");
+        
+        
         return new Resposta(OK, "User is now an admin!");
         
     }
@@ -84,7 +85,9 @@ public class UserController {
     public @ResponseBody Resposta removeAdmin(@RequestBody UsuarioUI user){
         try{
         if( userRepository.findByEmail(user.email).isEmpty() )
-            return new Resposta(ERRO, "There was no user with this search criteria");
+            return new Resposta(ERRO, "Nao existe usuario com esse parametro");
+        if( userRepository.findByIsAdmin(true).size() == 1 )
+            return new Resposta(ERRO, "Voce nao pode remover o unico administrador do sistema");
         }catch(Exception e){
             return new Resposta(ERRO, "User not found");
         }
@@ -95,7 +98,5 @@ public class UserController {
         userRepository.save(a);
         
         return new Resposta(OK, "User is no longer an admin!");
-    }
-
-   
+    }  
 }
