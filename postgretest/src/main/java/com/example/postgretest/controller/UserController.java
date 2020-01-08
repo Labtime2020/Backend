@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import org.springframework.web.bind.annotation.RequestBody;
+import com.example.postgretest.Controller.Resposta;
+import com.example.postgretest.util.Status;
+import static com.example.postgretest.util.Status.*;
 /**
  *
  * @author labtime
@@ -33,17 +36,17 @@ public class UserController {
     private Usuario a;
     @GetMapping(path="/addUser")
     //public @ResponseBody String insertUser(@RequestParam String nome, @RequestParam String email, @RequestParam String sobrenome, @RequestParam String password){
-    public @ResponseBody String insertData(){
+    public @ResponseBody Resposta insertData(){
         Usuario t = new Usuario(1, "andre", "andre@gmail.com", "boy", "andre123", true, 1);
         t.setRegisterDate(new Date());/*falta converter para a data atual*/
         userRepository.save(t);
-        return "User has been added to the database";
+        return new Resposta(OK, "User added");
     }
     @PostMapping(path="/updateUser")
-    public @ResponseBody String updateData(@RequestBody UsuarioUI user){
+    public @ResponseBody Resposta updateData(@RequestBody UsuarioUI user){
         System.out.println(user.getEmail());
         if( userRepository.findByEmail(user.email).isEmpty() )
-            return "User not found";
+            return new Resposta(ERRO, "There was no user with this search criteria");
         a =  userRepository.findByEmail(user.email).get(0);
         
         a.setEmail(user.getEmail());
@@ -53,39 +56,41 @@ public class UserController {
         a.setStatus(user.getStatus());
         System.out.println(a.getId());
         userRepository.save(a);
-        return "Data has been modified";
+        return new Resposta(OK, "User information updated");
     }
     @PostMapping(path="/addUserAsAdmin")
-    public @ResponseBody String addAdmin(@RequestBody UsuarioUI user ){
+    public @ResponseBody Resposta addAdmin(@RequestBody UsuarioUI user ){
         
         try{
         if( userRepository.findByEmail(user.email).isEmpty() )
-            return "User not found";
+            return new Resposta(ERRO, "There was no user with this search criteria");
         }catch(Exception e){
-            return "No user was added to the database";
+            return new Resposta(ERRO, "User not found");
         }
         a = userRepository.findByEmail(user.email).get(0);
         a.setIsAdmin(true);
         a.setAdminBeginDate(new Date());
         a.setAdminEndDate(null);
         userRepository.save(a);
-        return "User permission has changed";
+        System.out.println(userRepository.findByIsAdmin(true));
+        return new Resposta(OK, "User is now an admin!");
         
     }
     @PostMapping(path="/removeUserAsAdmin")
-    public @ResponseBody String removeAdmin(@RequestBody UsuarioUI user){
+    public @ResponseBody Resposta removeAdmin(@RequestBody UsuarioUI user){
         try{
         if( userRepository.findByEmail(user.email).isEmpty() )
-            return "User not found";
+            return new Resposta(ERRO, "There was no user with this search criteria");
         }catch(Exception e){
-            return "No user was added to the database";
+            return new Resposta(ERRO, "User not found");
         }
+        
         a = userRepository.findByEmail(user.email).get(0);
         a.setIsAdmin(false);
         a.setAdminEndDate(new Date());
         userRepository.save(a);
         
-        return "User is no longer an admin";
+        return new Resposta(OK, "User is no longer an admin!");
     }
 
    
