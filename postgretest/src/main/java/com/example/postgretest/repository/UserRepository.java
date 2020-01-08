@@ -19,4 +19,5 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends CrudRepository<Usuario, Long> {
 	List<Usuario> findByEmail(String email);
 	List<Usuario> findAll();
+        List<Usuario> findByIsAdmin(boolean isAdmin);
 }
