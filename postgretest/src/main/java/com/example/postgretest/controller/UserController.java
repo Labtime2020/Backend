@@ -37,11 +37,14 @@ public class UserController {
     @PostMapping(path="/addUser")
     //public @ResponseBody String insertUser(@RequestParam String nome, @RequestParam String email, @RequestParam String sobrenome, @RequestParam String password){
     public @ResponseBody Resposta insertData(@RequestBody UsuarioUI user){
-        
-        Usuario t = new Usuario(user.getId(), user.getNome(), user.getEmail(), user.getSobrenome(), user.getPassword(), false, 1);
-        t.setRegisterDate(new Date());/*falta converter para a data atual*/
-        userRepository.save(t);
-        return new Resposta(OK, "User added");
+        if(!userRepository.findByEmail(user.getEmail()).isEmpty()){
+            Usuario t = new Usuario(user.getId(), user.getNome(), user.getEmail(), user.getSobrenome(), user.getPassword(), false, 1);
+            t.setRegisterDate(new Date());/*falta converter para a data atual*/
+            userRepository.save(t);
+            return new Resposta(OK, "User added");
+        }
+        else
+            return new Resposta(ERRO,"User with email " + user.getEmail() + "already exists!");
     }
     @PostMapping(path="/updateUser")
     public @ResponseBody Resposta updateData(@RequestBody UsuarioUI user){
