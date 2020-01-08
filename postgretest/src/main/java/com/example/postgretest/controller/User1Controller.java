@@ -49,7 +49,7 @@ public class User1Controller {
     	if(users.size() > 0){
     		return new Resposta(ERRO, "Usuario com mesmo email ja cadastrado");
     	}else{
-    		Usuario nuser = new Usuario(123, usuario.nome, usuario.email, usuario.sobrenome, usuario.password, usuario.isAdmin);
+    		Usuario nuser = new Usuario(123, usuario.nome, usuario.email, usuario.sobrenome, usuario.password, usuario.isAdmin, ATIVO);
 
     		List<Usuario> test = userRepository.findAll();
 	
@@ -74,7 +74,7 @@ public class User1Controller {
 
     	for(Usuario user: users){
     		usuarios.add(new UsuarioUI(user.getId(), user.getEmail(), user.getNome(), user.getSobrenome(),
-    			user.getIsAdmin(), user.getPassword()));
+    			user.getIsAdmin(), user.getPassword(), user.getStatus()));
     	}
 
     	return usuarios;
