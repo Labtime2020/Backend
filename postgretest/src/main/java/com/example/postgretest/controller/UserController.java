@@ -34,10 +34,11 @@ public class UserController {
     @Autowired 
     private UserRepository userRepository;
     private Usuario a;
-    @GetMapping(path="/addUser")
+    @PostMapping(path="/addUser")
     //public @ResponseBody String insertUser(@RequestParam String nome, @RequestParam String email, @RequestParam String sobrenome, @RequestParam String password){
-    public @ResponseBody Resposta insertData(){
-        Usuario t = new Usuario(1, "andre", "andre@gmail.com", "boy", "andre123", true, 1);
+    public @ResponseBody Resposta insertData(@RequestBody UsuarioUI user){
+        
+        Usuario t = new Usuario(user.getId(), user.getNome(), user.getEmail(), user.getSobrenome(), user.getPassword(), false, 1);
         t.setRegisterDate(new Date());/*falta converter para a data atual*/
         userRepository.save(t);
         return new Resposta(OK, "User added");
@@ -72,7 +73,7 @@ public class UserController {
         a.setAdminBeginDate(new Date());
         a.setAdminEndDate(null);
         userRepository.save(a);
-        System.out.println(userRepository.findByIsAdmin(true));
+        System.out.println(userRepository.findByIsAdmin(true).get(0).getNome() + "hahahahahah");
         return new Resposta(OK, "User is now an admin!");
         
     }
