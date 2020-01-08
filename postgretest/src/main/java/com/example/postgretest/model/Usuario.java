@@ -60,7 +60,7 @@ public class Usuario implements Serializable{
     public Usuario(){
     }
 
-    public Usuario(long id, String nome, String email, String sobrenome, String password, boolean isAdmin) {
+    public Usuario(long id, String nome, String email, String sobrenome, String password, boolean isAdmin, int status) {
         this.id = id;
         this.nome = nome;
         this.email = email;

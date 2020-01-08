@@ -18,7 +18,8 @@ public class UsuarioUI {
     public boolean isAdmin;
     public int status;
 
-    public UsuarioUI( String email, String nome, String sobrenome, boolean isAdmin, String password, int status) {
+    public UsuarioUI( Long id, String email, String nome, String sobrenome, boolean isAdmin, String password, int status) {
+        this.id = id;
         this.email = email;
         this.nome = nome;
         this.sobrenome = sobrenome;
@@ -30,6 +31,7 @@ public class UsuarioUI {
     public Long getId() {
         return id;
     }
+    
 
     public int getStatus() {
         return status;
