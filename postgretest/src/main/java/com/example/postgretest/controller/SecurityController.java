@@ -19,6 +19,8 @@ import com.example.postgretest.repository.UserRepository;
 import java.util.Date;
 import java.time.LocalDate;
 
+import static com.example.postgretest.util.Status.*;
+
 import com.example.postgretest.model.UsuarioUI;
 import com.example.postgretest.model.Usuario;
 

@@ -1,6 +1,7 @@
 package com.example.postgretest.security;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.example.postgretest.model.Aluno;
 import com.example.postgretest.repository.UserRepository;
@@ -28,7 +29,13 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        com.example.postgretest.model.Usuario user = repository.findById((long)1).get();
+    	List<com.example.postgretest.model.Usuario> lists = repository.findByEmail(s);
+
+    	if(lists.size() == 0){
+    		throw new UsernameNotFoundException("usuario nao encontrado!");
+    	}
+
+        com.example.postgretest.model.Usuario user = lists.get(0);
         
         System.out.println(user.getEmail());
 
