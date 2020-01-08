@@ -16,17 +16,23 @@ public class UsuarioUI {
     public String sobrenome;
     public String password;
     public boolean isAdmin;
+    public int status;
 
-    public UsuarioUI( String email, String nome, String sobrenome, boolean isAdmin, String password) {
+    public UsuarioUI( String email, String nome, String sobrenome, boolean isAdmin, String password, int status) {
         this.email = email;
         this.nome = nome;
         this.sobrenome = sobrenome;
         this.isAdmin = isAdmin;
         this.password = password;
+        this.status = status;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public int getStatus() {
+        return status;
     }
     
     public String getEmail() {
@@ -71,6 +77,10 @@ public class UsuarioUI {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
     
     

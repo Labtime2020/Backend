@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class UserController {
     @Autowired 
     private UserRepository userRepository;
-    
+    private Usuario a;
     @GetMapping(path="/addUser")
     //public @ResponseBody String insertUser(@RequestParam String nome, @RequestParam String email, @RequestParam String sobrenome, @RequestParam String password){
     public @ResponseBody String insertData(){
@@ -43,16 +43,50 @@ public class UserController {
     public @ResponseBody String updateData(@RequestBody UsuarioUI user){
         System.out.println(user.getEmail());
         if( userRepository.findByEmail(user.email).isEmpty() )
-            return "Usuario nao encontrado";
-        Usuario a =  userRepository.findByEmail(user.email).get(0);
+            return "User not found";
+        a =  userRepository.findByEmail(user.email).get(0);
         
         a.setEmail(user.getEmail());
         a.setNome(user.getNome());
         a.setPassword(user.getPassword());
         a.setSobrenome(user.getSobrenome());
+        a.setStatus(user.getStatus());
         System.out.println(a.getId());
         userRepository.save(a);
-        return "Dados inseridos!";
+        return "Data has been modified";
     }
+    @PostMapping(path="/addUserAdmin")
+    public @ResponseBody String addAdmin(@RequestBody UsuarioUI user ){
+        
+        try{
+        if( userRepository.findByEmail(user.email).isEmpty() )
+            return "User not found";
+        }catch(Exception e){
+            return "No user was added to the database";
+        }
+        a = userRepository.findByEmail(user.email).get(0);
+        a.setIsAdmin(true);
+        a.setAdminBeginDate(new Date());
+        a.setAdminEndDate(null);
+        userRepository.save(a);
+        return "User permission has changed";
+        
+    }
+    @PostMapping(path="/removeUserAdmin")
+    public @ResponseBody String removeAdmin(@RequestBody UsuarioUI user){
+        try{
+        if( userRepository.findByEmail(user.email).isEmpty() )
+            return "User not found";
+        }catch(Exception e){
+            return "No user was added to the database";
+        }
+        a = userRepository.findByEmail(user.email).get(0);
+        a.setIsAdmin(false);
+        a.setAdminEndDate(new Date());
+        userRepository.save(a);
+        
+        return "User is no longer an admin";
+    }
+
    
 }
