@@ -1,5 +1,8 @@
 package com.example.postgretest.security;
 
+import java.io.PrintWriter;
+
+import java.util.List;
 import java.util.Collections;
 import java.util.Date;
 
@@ -8,9 +11,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+
+import com.example.postgretest.repository.UserRepository;
+import com.example.postgretest.model.Usuario;
+import com.example.postgretest.model.UsuarioUI;
 
 public class TokenAuthenticationService{
 	static final long EXPIRATION_TIME = 860_000_000;

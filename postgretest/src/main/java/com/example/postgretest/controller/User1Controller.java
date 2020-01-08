@@ -5,6 +5,8 @@
  */
 package com.example.postgretest.Controller;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +28,8 @@ import java.util.Date;
 import java.time.LocalDate;
 
 import org.springframework.web.bind.annotation.RequestBody;
+
+import static com.example.postgretest.util.Status.*;
 /**
  *
  * @author labtime
@@ -41,13 +45,23 @@ public class User1Controller {
     	System.out.println("Cadastrando Usuario");
 
     	List<Usuario> users = userRepository.findByEmail(usuario.email);
-
+    	
     	if(users.size() > 0){
-    		return new Resposta(1, "Usuario com mesmo email ja cadastrado");
+    		return new Resposta(ERRO, "Usuario com mesmo email ja cadastrado");
     	}else{
-    		userRepository.save(new Usuario(123, usuario.nome, usuario.email, usuario.sobrenome, usuario.password, usuario.isAdmin, 1));
-    		
-    		return new Resposta(0, "Usuario criado com sucesso");
+    		Usuario nuser = new Usuario(123, usuario.nome, usuario.email, usuario.sobrenome, usuario.password, usuario.isAdmin);
+
+    		List<Usuario> test = userRepository.findAll();
+	
+			if(test.size() == 0){
+				nuser.setIsAdmin(true);
+
+				nuser.setAdminBeginDate(new Date());
+			}	
+			
+			userRepository.save(nuser);
+
+    		return new Resposta(OK, "Usuario criado com sucesso");
     	}
     }
 
@@ -59,8 +73,8 @@ public class User1Controller {
     	List<UsuarioUI> usuarios = new ArrayList<>();
 
     	for(Usuario user: users){
-    		usuarios.add(new UsuarioUI(user.getEmail(), user.getNome(), user.getSobrenome(),
-    			user.getIsAdmin(), user.getPassword(), user.getStatus()));
+    		usuarios.add(new UsuarioUI(user.getId(), user.getEmail(), user.getNome(), user.getSobrenome(),
+    			user.getIsAdmin(), user.getPassword()));
     	}
 
     	return usuarios;
