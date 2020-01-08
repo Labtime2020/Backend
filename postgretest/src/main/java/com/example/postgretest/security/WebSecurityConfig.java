@@ -24,6 +24,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/buscarusuarios").permitAll()
                         .antMatchers("/addUserAsAdmin").permitAll()
                         .antMatchers("/removeUserAsAdmin").permitAll()
+                        .antMatchers("/alterarsenha/*").permitAll()
 			.antMatchers(HttpMethod.POST, "/login").permitAll()
 			.anyRequest().authenticated()
 			.and()

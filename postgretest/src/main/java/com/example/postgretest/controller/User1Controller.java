@@ -23,13 +23,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import com.example.postgretest.repository.UserRepository;
+
 import java.util.Date;
 import java.time.LocalDate;
 
 import org.springframework.web.bind.annotation.RequestBody;
 
 import static com.example.postgretest.util.Status.*;
+
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+
 /**
  *
  * @author labtime
@@ -39,6 +46,9 @@ import static com.example.postgretest.util.Status.*;
 public class User1Controller {
     @Autowired 
     private UserRepository userRepository;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
     
     @PostMapping("/cadastrar")
     public Resposta cadastrar(@RequestBody UsuarioUI usuario){
@@ -78,5 +88,18 @@ public class User1Controller {
     	}
 
     	return usuarios;
+    }
+
+    @GetMapping("/alterarsenha/{email}")
+    public String alterarsenha(@PathVariable String email){
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(email);
+
+        msg.setSubject("Alteracao de senha");
+        msg.setText("O codigo de alteracao de senha eh 123456");
+
+        javaMailSender.send(msg);
+
+        return "Codigo enviado para o email " + email;
     }
 }
