@@ -34,6 +34,7 @@ public class UserController {
     @Autowired 
     private UserRepository userRepository;
     private Usuario a;
+    private Optional <Usuario> b;
     @PostMapping(path="/addUser")
     //public @ResponseBody String insertUser(@RequestParam String nome, @RequestParam String email, @RequestParam String sobrenome, @RequestParam String password){
     public @ResponseBody Resposta insertData(@RequestBody UsuarioUI user){
@@ -41,18 +42,21 @@ public class UserController {
             Usuario t = new Usuario(user.getId(), user.getNome(), user.getEmail(), user.getSobrenome(), user.getPassword(), false, 1);
             t.setRegisterDate(new Date());/*falta converter para a data atual*/
             userRepository.save(t);
-            return new Resposta(OK, "User added");
+            return new Resposta(OK, "Usuario adicionado");
         }
         else
-            return new Resposta(ERRO,"User with email " + user.getEmail() + " already exists!");
+            return new Resposta(USERJAEXISTE,"ME04_2 - Usuario com email " + user.getEmail() + " ja existe no sistema");
     }
     @PostMapping(path="/updateUser")
     public @ResponseBody Resposta updateData(@RequestBody UsuarioUI user){
         System.out.println(user.getEmail());
-        if( userRepository.findByEmail(user.email).isEmpty() )
-            return new Resposta(ERRO, "There was no user with this search criteria");
-        a =  userRepository.findByEmail(user.email).get(0);
         
+       b = userRepository.findById(user.id);
+        
+        if( b.isEmpty() )
+            return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
+        else if( userRepository.findByEmail(user.email).isEmpty() == false ) //ja existe user com email fornecido, abortar
+            return new Resposta(USERJAEXISTE, "ME04_2 - Usuario com email " + user.getEmail() + " ja existe no sistema");
         a.setEmail(user.getEmail());
         a.setNome(user.getNome());
         a.setPassword(user.getPassword());
@@ -65,29 +69,30 @@ public class UserController {
     @PostMapping(path="/addUserAsAdmin")
     public @ResponseBody Resposta addAdmin(@RequestBody UsuarioUI user ){
         
-        try{
-        if( userRepository.findByEmail(user.email).isEmpty() )
-            return new Resposta(ERRO, "There was no user with this search criteria");
-        }catch(Exception e){
-            return new Resposta(ERRO, "User not found");
-        }
+        b = userRepository.findById(user.id);
+        
+        if( b.isEmpty() )
+            return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
+        
         a = userRepository.findByEmail(user.email).get(0);
         a.setIsAdmin(true);
         a.setAdminBeginDate(new Date());
         a.setAdminEndDate(null);
         userRepository.save(a);
-        
-        
-        return new Resposta(OK, "User is now an admin!");
+      
+        return new Resposta(OK, "Usuario agora eh um administrador!");
         
     }
     @PostMapping(path="/removeUserAsAdmin")
     public @ResponseBody Resposta removeAdmin(@RequestBody UsuarioUI user){
+        b = userRepository.findById(user.id);
+        
+        
         try{
-        if( userRepository.findByEmail(user.email).isEmpty() )
-            return new Resposta(ERRO, "Nao existe usuario com esse parametro");
-        if( userRepository.findByIsAdmin(true).size() == 1 )
-            return new Resposta(ERRO, "Voce nao pode remover o unico administrador do sistema");
+            if( b.isEmpty() )
+                return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
+            if( userRepository.findByIsAdmin(true).size() <= 1 )
+                return new Resposta(UNADMIN, "Voce nao pode remover o unico administrador do sistema");
         }catch(Exception e){
             return new Resposta(ERRO, "User not found");
         }

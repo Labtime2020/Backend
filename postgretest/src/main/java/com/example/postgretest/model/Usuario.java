@@ -69,10 +69,6 @@ public class Usuario implements Serializable{
         this.status = 1;
         this.isAdmin = isAdmin;
     }
-
-    public Usuario(int i, String nome, String email, String sobrenome, String password, boolean admin) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     
 
     public int getStatus() {
