@@ -39,6 +39,7 @@ public class NormaController {
    
     private Optional<Norma> normaChk; 
     private Norma normaObject;
+    
     @PostMapping(path="/addNorma")
     public @ResponseBody Resposta addNorma( @RequestBody NormaUI norma ){
        
@@ -50,7 +51,7 @@ public class NormaController {
         else{
             Usuario usr = userRepository.findById(norma.getCreationUser()).get();//obtnho o usuario pelo repositorio.
             System.out.println(usr.getAdminBeginDate() + "blablablabla nao eh nulo");
-            //normaObject = new Norma(long id, norma.getNome(), null, new Date(), null, norma.getCreationUser(), norma.getDeletionUser());
+            Norma normaObject = new Norma(1, norma.getNome(), norma.getDescricao(), null, new Date(), null, usr, usr);
             
             normaRepository.save(normaObject);
             return new Resposta(OK, "teste certo");

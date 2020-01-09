@@ -66,7 +66,9 @@ public class Norma {
         this.creationUser = creationUser;
         this.deletionUser = deletionUser;
     }
-
+    public Norma(){
+        
+    }
     public long getNormaId() {
         return normaId;
     }
