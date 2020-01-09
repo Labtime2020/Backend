@@ -48,6 +48,7 @@ public class Usuario implements Serializable{
     private String password;
     private int status;//situacao do usuario
     private boolean isAdmin;
+    private int tentativaErrada;
     @Column
     @Temporal(TemporalType.DATE)
     private Date registerDate;
@@ -69,6 +70,7 @@ public class Usuario implements Serializable{
         this.password = password;
         this.status = 1;
         this.isAdmin = isAdmin;
+        this.tentativaErrada = 0;
     }
     
 
@@ -154,5 +156,17 @@ public class Usuario implements Serializable{
     
     public Usuario at() {
         return this;
+    }
+
+    public int getTentativaErrada(){
+        return this.tentativaErrada;
+    }
+
+    public void addTentativaErrada(){
+        this.tentativaErrada++;
+    }
+
+    public void zerarTentativaErrada(){
+        this.tentativaErrada = 0;
     }
 }

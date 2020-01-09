@@ -24,6 +24,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.example.postgretest.Controller.Resposta;
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.model.Usuario;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -54,6 +55,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 
 		System.out.println(credentials.getUsername());
 		System.out.println(credentials.getPassword());
+		request.setAttribute("username", credentials.getUsername());
 
 		Authentication auth = getAuthenticationManager().authenticate(
 				new UsernamePasswordAuthenticationToken(
@@ -87,13 +89,16 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 		out.print("{teste: 'teste'}");
 		out.flush();
 	*/
-		if(messages[1] == ERRO_SENHA_ERRADA){
-			final String uri = API_ADDRESS + "/incrementar_erro/" + email  + "/" + MCREDENTIAL;
+
+		if(failed instanceof org.springframework.security.authentication.BadCredentialsException){
+			System.out.println("Mandando aqui!!");
+
+			final String uri = API_ADDRESS + "/incrementar_erro/" + request.getAttribute("username");
 
 		    RestTemplate restTemplate = new RestTemplate();
 		    String result = restTemplate.getForObject(uri, String.class);
 
-		    System.out.println(result);
+		    messages[1] = result;
 		}
 
 		response.sendError(401, messages[1]);

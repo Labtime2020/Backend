@@ -103,21 +103,18 @@ public class User1Controller {
         return "Codigo enviado para o email " + email;
     }
 
-    @GetMapping("/incrementar_erro/{email}/{credencial}")
-    public String incrementar_erro(@PathVariable String email, @PathVariable String credencial){
-        if(credencial != MCREDENCIAL){
-            return "credencial invalida";
-        }
-
-        List<Usuario> user = userRepository.findByEmail(email);
+    @GetMapping("/incrementar_erro/{email}")
+    public String incrementar_erro(@PathVariable String email){
+        Usuario user = userRepository.findByEmail(email).get(0);
         user.addTentativaErrada();
 
         userRepository.save(user);
 
-        if(user.getTentativaErrada() >= 5){
-            return "usuario bloqueado!";
+        if(user.getTentativaErrada() >= MAX_NUM_TENTATIVAS){
+            //enviar email com instrucoes para usuario!.
+            return ME10_1;
         }
 
-        return "usuario ainda possui tentativas";
+        return ME09;
     }
 }

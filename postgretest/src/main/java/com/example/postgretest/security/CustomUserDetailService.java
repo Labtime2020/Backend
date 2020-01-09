@@ -45,6 +45,10 @@ public class CustomUserDetailService implements UserDetailsService {
         	throw new RecoverableDataAccessException(ME06);
         }
 
+        if(user.getTentativaErrada() >= MAX_NUM_TENTATIVAS){
+            throw new RecoverableDataAccessException(ME10_2);
+        }
+
         System.out.println(user.getEmail());
 
         User userItem = new User(user.getEmail(), "{noop}" + user.getPassword(),true,true,true,true, AuthorityUtils.createAuthorityList("ROLE_ADMIN", "ROLE_USER"));
