@@ -12,9 +12,10 @@ package com.example.postgretest.repository;
 import java.util.List;
 
 import com.example.postgretest.model.Norma;
+import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
 public interface NormaRepository extends CrudRepository<Norma, String> {
-    
+    Optional<Norma> findByNome(String nome);
 }

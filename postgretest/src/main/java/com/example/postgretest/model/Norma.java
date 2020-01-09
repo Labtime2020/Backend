@@ -56,4 +56,80 @@ public class Norma {
     @JoinColumn(name="email")
     private Usuario deletionUser;*/
     
+    public Norma(long normaId, String nome, String descricao, String url, Date registerDate, Date deletionDate, Usuario creationUser, Usuario deletionUser) {
+        this.normaId = normaId;
+        this.nome = nome;
+        this.descricao = descricao;
+        this.url = url;
+        this.registerDate = registerDate;
+        this.deletionDate = deletionDate;
+        this.creationUser = creationUser;
+        this.deletionUser = deletionUser;
+    }
+
+    public long getNormaId() {
+        return normaId;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public Date getRegisterDate() {
+        return registerDate;
+    }
+
+    public Date getDeletionDate() {
+        return deletionDate;
+    }
+
+    public Usuario getCreationUser() {
+        return creationUser;
+    }
+
+    public Usuario getDeletionUser() {
+        return deletionUser;
+    }
+
+    public void setNormaId(long normaId) {
+        this.normaId = normaId;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setRegisterDate(Date registerDate) {
+        this.registerDate = registerDate;
+    }
+
+    public void setDeletionDate(Date deletionDate) {
+        this.deletionDate = deletionDate;
+    }
+
+    public void setCreationUser(Usuario creationUser) {
+        this.creationUser = creationUser;
+    }
+
+    public void setDeletionUser(Usuario deletionUser) {
+        this.deletionUser = deletionUser;
+    }
+    
+    
 }
