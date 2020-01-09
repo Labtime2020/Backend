@@ -29,10 +29,12 @@ import com.example.postgretest.model.Usuario;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
+import org.springframework.web.client.RestTemplate;
+
 import static com.example.postgretest.util.Status.*;
 
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
-	@Autowired 
+	@Autowired
     private UserRepository userRepository;
 	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
@@ -70,12 +72,31 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 		TokenAuthenticationService.addAuthentication(response, auth.getName());
 	}
 
+	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request,
 			HttpServletResponse response, AuthenticationException failed)
 			throws IOException, ServletException {
 
 		System.out.println(failed.toString());
+		String messages[] = failed.toString().split(": ");
 
-		failureHandler.onAuthenticationFailure(request, response, failed);
+		/*PrintWriter out = response.getWriter();
+
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		out.print("{teste: 'teste'}");
+		out.flush();
+	*/
+		if(messages[1] == ERRO_SENHA_ERRADA){
+			final String uri = API_ADDRESS + "/incrementar_erro/" + email  + "/" + MCREDENTIAL;
+
+		    RestTemplate restTemplate = new RestTemplate();
+		    String result = restTemplate.getForObject(uri, String.class);
+
+		    System.out.println(result);
+		}
+
+		response.sendError(401, messages[1]);
+	//	failureHandler.onAuthenticationFailure(request, response, failed);
 	}
 }
