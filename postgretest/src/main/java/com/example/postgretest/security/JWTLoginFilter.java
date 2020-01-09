@@ -24,7 +24,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.example.postgretest.Controller.Resposta;
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.model.Usuario;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
