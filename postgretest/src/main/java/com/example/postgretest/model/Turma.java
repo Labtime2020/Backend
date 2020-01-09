@@ -25,6 +25,7 @@ public class Turma implements Serializable {
  
 	@Column(name = "nometurma")
 	private String nomeTurma;
+
  
 	protected Turma() {
 	}

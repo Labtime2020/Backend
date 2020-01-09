@@ -10,10 +10,14 @@ public final class Status{
 	public static final int SENHAERRADA = 6;//tentativa de login com senha errada
 	public static final int SEMUSER = 7;//usuario nao existente
     public static final int USERJAEXISTE = 8; //usuario ja existe no sistema
-	public static final String ME09 = "Usuario nao encontrado para tal email";
-	public static final String ME10_2 = "Senha incorreta, tentativa de erro contabilizada";
+    public static final int BLOQUEADO = 9;
+	public static final String ME09 = "Usuario ou senha incorretos";
+	public static final String ME10_2 = "Usuario bloqueado";
+	public static final String ME10_1 = "Senha incorreta, usuario bloqueado, instrucoes para desbloqueio enviado no email informado";
 	public static final String ME06 = "Usuario inativo";
 	public static final String DIVISOR = "&&&^^^^^()()()()";
-	public static final String API_ADDRESS = "localhost:9090";
+	public static final String API_ADDRESS = "http://localhost:9090";
 	public static final String MCREDENTIAL = "LABTIME2020";
+	public static final String ERRO_SENHA_ERRADA = "Bad credentials";
+	public static final int MAX_NUM_TENTATIVAS = 5;//maximo numero de tentativas erradas
 }
