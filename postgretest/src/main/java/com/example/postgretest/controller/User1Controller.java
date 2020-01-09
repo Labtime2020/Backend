@@ -12,9 +12,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.postgretest.model.DesbloqueioToken;
+import com.example.postgretest.repository.DesbloqueioTokenRepository;
+import com.example.postgretest.service.EmailSenderService;
 import com.example.postgretest.Controller.Resposta;
 import com.example.postgretest.model.Usuario;
 import com.example.postgretest.model.UsuarioUI;
+import com.example.postgretest.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,18 +29,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
-
-import com.example.postgretest.repository.UserRepository;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Date;
 import java.time.LocalDate;
 
-import org.springframework.web.bind.annotation.RequestBody;
-
 import static com.example.postgretest.util.Status.*;
-
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 
 /**
  *
@@ -44,11 +43,17 @@ import org.springframework.mail.javamail.JavaMailSender;
 @RestController
 
 public class User1Controller {
+    @Autowired
+    private DesbloqueioTokenRepository desbloqueioTokenRepository;
+
+    @Autowired
+    private EmailSenderService emailSenderService;
+
     @Autowired 
     private UserRepository userRepository;
 
     @Autowired
-    private JavaMailSender javaMailSender;
+    private EmailSenderService javaMailSender;
     
     @PostMapping("/cadastrar")
     public Resposta cadastrar(@RequestBody UsuarioUI usuario){
@@ -90,19 +95,6 @@ public class User1Controller {
     	return usuarios;
     }
 
-    @GetMapping("/alterarsenha/{email}")
-    public String alterarsenha(@PathVariable String email){
-        SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo(email);
-
-        msg.setSubject("Alteracao de senha");
-        msg.setText("O codigo de alteracao de senha eh 123456");
-
-        javaMailSender.send(msg);
-
-        return "Codigo enviado para o email " + email;
-    }
-
     @GetMapping("/incrementar_erro/{email}")
     public String incrementar_erro(@PathVariable String email){
         Usuario user = userRepository.findByEmail(email).get(0);
@@ -112,9 +104,26 @@ public class User1Controller {
 
         if(user.getTentativaErrada() >= MAX_NUM_TENTATIVAS){
             //enviar email com instrucoes para usuario!.
+            emailSenderService.sendDesbloqueioToken(user);
             return ME10_1;
         }
 
         return ME09;
+    }
+
+    @GetMapping("/desbloquear")
+    public String desbloquear(@RequestParam("token")String desbloqueioToken){
+        DesbloqueioToken token = desbloqueioTokenRepository.findByDesbloqueioToken(desbloqueioToken);
+
+        if(token != null){
+            Usuario user = userRepository.findByEmail(token.getUsuario().getEmail()).get(0);
+            
+            user.zerarTentativaErrada();
+            userRepository.save(user);
+
+            return "Usuario desbloqueado";
+        }else{
+            return "Token invalido";
+        }
     }
 }
