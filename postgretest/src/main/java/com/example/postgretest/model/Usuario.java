@@ -19,6 +19,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -27,7 +28,7 @@ import javax.validation.constraints.Size;
  * @author labtime
  */
 @Entity
-@Table(name="Usuario")
+@Table(name="Usuario", uniqueConstraints = @UniqueConstraint(columnNames = "email", name="emailConstraint"))
 public class Usuario implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

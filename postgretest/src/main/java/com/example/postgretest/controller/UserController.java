@@ -57,13 +57,19 @@ public class UserController {
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
         else if( userRepository.findByEmail(user.email).isEmpty() == false ) //ja existe user com email fornecido, abortar
             return new Resposta(USERJAEXISTE, "ME04_2 - Usuario com email " + user.getEmail() + " ja existe no sistema");
-        a.setEmail(user.getEmail());
-        a.setNome(user.getNome());
-        a.setPassword(user.getPassword());
-        a.setSobrenome(user.getSobrenome());
-        a.setStatus(user.getStatus());
-        System.out.println(a.getId());
-        userRepository.save(a);
+        try{
+            a = b.get();
+            a.setId(user.getId());
+            a.setEmail(user.getEmail());
+            a.setNome(user.getNome());
+            a.setPassword(user.getPassword());
+            a.setSobrenome(user.getSobrenome());
+            a.setStatus(user.getStatus());
+            System.out.println(a.getId());
+            userRepository.save(a);
+        }catch(Exception e){
+            return new Resposta(123, e.toString());
+        }
         return new Resposta(OK, "User information updated");
     }
     @PostMapping(path="/addUserAsAdmin")
@@ -74,7 +80,7 @@ public class UserController {
         if( b.isEmpty() )
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
         
-        a = userRepository.findByEmail(user.email).get(0);
+        a = b.get();
         a.setIsAdmin(true);
         a.setAdminBeginDate(new Date());
         a.setAdminEndDate(null);
@@ -87,14 +93,13 @@ public class UserController {
     public @ResponseBody Resposta removeAdmin(@RequestBody UsuarioUI user){
         b = userRepository.findById(user.id);
         
-        
         try{
             if( b.isEmpty() )
                 return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
             if( userRepository.findByIsAdmin(true).size() <= 1 )
                 return new Resposta(UNADMIN, "Voce nao pode remover o unico administrador do sistema");
         }catch(Exception e){
-            return new Resposta(ERRO, "User not found");
+            return new Resposta(ERRO, "Falha de comportamento!");
         }
         
         a = userRepository.findByEmail(user.email).get(0);
@@ -102,6 +107,6 @@ public class UserController {
         a.setAdminEndDate(new Date());
         userRepository.save(a);
         
-        return new Resposta(OK, "User is no longer an admin!");
+        return new Resposta(OK, "Usuario nao eh mais administrador");
     }  
 }
