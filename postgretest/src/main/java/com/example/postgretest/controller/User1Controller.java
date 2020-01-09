@@ -118,12 +118,16 @@ public class User1Controller {
         if(token != null){
             Usuario user = userRepository.findByEmail(token.getUsuario().getEmail()).get(0);
             
+            if(user.getTentativaErrada() < MAX_NUM_TENTATIVAS){
+                return ME11;
+            }
+
             user.zerarTentativaErrada();
             userRepository.save(user);
 
-            return "Usuario desbloqueado";
+            return MS02;
         }else{
-            return "Token invalido";
+            return ME12;
         }
     }
 }
