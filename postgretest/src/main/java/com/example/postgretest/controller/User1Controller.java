@@ -109,7 +109,10 @@ public class User1Controller {
         Usuario user = userRepository.findByEmail(auth.getName()).get(0);
 
         for(int i = 0 ; i < user.getFavoritos().size() ; i++){
-            if(user.getFavoritos().get(i).getNome() == norma.nome){
+            System.out.println(user.getFavoritos().get(i).getNome() + " == " + norma.nome);
+
+            if(user.getFavoritos().get(i).getNormaId() == norma.normaId){
+                // System.out.println("removendo...");
                 user.getFavoritos().remove(i);
                 break;
             }
