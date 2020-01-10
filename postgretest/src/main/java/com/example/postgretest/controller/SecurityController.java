@@ -32,6 +32,7 @@ public class SecurityController{
 
 	@GetMapping("/usuariologado")
     public UsuarioUI currentUserName(Authentication authentication) {
+    	System.out.println(authentication.getName() + " eh o token");
     	Usuario user = userRepository.findByEmail(authentication.getName()).get(0);
 
     	return new UsuarioUI((Long) user.getId(), user.getNome(), user.getEmail(), user.getSobrenome(), user.getIsAdmin(),

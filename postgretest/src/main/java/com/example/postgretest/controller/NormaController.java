@@ -45,7 +45,6 @@ public class NormaController {
     @PostMapping(path="/addNorma")
     public @ResponseBody Resposta addNorma( @RequestBody NormaUI norma ){
        /*com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores*/
-       
         normaChk = normaRepository.findByNome(norma.getNome());
         
         if( !normaChk.isEmpty() )
@@ -64,7 +63,6 @@ public class NormaController {
                 return new Resposta(OK, "Norma cadastrada com sucesso");
             }
         }
-        
     }
     
     @PostMapping(path="/updateNorma")
@@ -80,37 +78,34 @@ public class NormaController {
         }
         else{
             Norma normaAntiga = normaChk.get();//salvo a norma antiga para enviar email com alteracoes
-            
-            if( norma.isIsActive() == false ) {
-                try{
-                    normaObject = normaRepository.findByNormaId(norma.getNormaId()).get();
-                    normaObject.setNome(norma.getNome());
-                    normaObject.setUrl(norma.getUrl());
-                    normaObject.setDescricao(norma.getDescricao());
-                    /*devemos enviar e-mail para os usuarios*/
-                    if(normaObject.getUsuarios().isEmpty() == false){
-                        Usuario iterator;
-                        String msg;
-                        System.out.println("\n\n entrou!!! " + normaObject.getUsuarios().size());
-                        for( int i = 0; i < normaObject.getUsuarios().size(); i++ ){
-                            iterator = normaObject.getUsuarios().get(i);
-                            System.out.println(iterator.getNome() + "blablablablabla");
-                            msg = "Nome antigo: " + normaAntiga.getNome() + "Nome novo: " + norma.getNome();
-                            javaMailSender.sendEmailComModificacoes(iterator, msg);
-                            normaRepository.save(normaObject);
-                        }
-                    }
-                    
-                    /*salvarDados()*/
-                    
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }
-        return new Resposta(OK, "OK");
-    }
 
-  
-    
+            try{
+                normaObject = normaRepository.findByNormaId(norma.getNormaId()).get();
+                normaObject.setNome(norma.getNome());
+                normaObject.setUrl(norma.getUrl());
+                normaObject.setDescricao(norma.getDescricao());
+                /*devemos enviar e-mail para os usuarios*/
+
+                if(normaObject.getUsuarios().isEmpty() == false){
+                    Usuario iterator;
+                    String msg;
+
+                    for( int i = 0; i < normaObject.getUsuarios().size(); i++ ){
+                        iterator = normaObject.getUsuarios().get(i);
+                    
+                        msg = "Nome antigo: " + normaAntiga.getNome() + "Nome novo: " + norma.getNome();
+                        javaMailSender.sendEmailComModificacoes(iterator, msg);
+                    }
+                }
+
+                normaRepository.save(normaObject);
+                /*salvarDados()*/
+                
+            }catch(Exception e){
+                e.printStackTrace();
+            }   
+        }
+
+        return new Resposta(OK, "OK");
+    }    
 }
