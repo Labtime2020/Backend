@@ -18,4 +18,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface NormaRepository extends CrudRepository<Norma, String> {
     Optional<Norma> findByNome(String nome);
+    Optional<Norma> findByNormaId(long normaId);
 }

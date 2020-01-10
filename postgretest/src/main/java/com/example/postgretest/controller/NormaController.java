@@ -43,6 +43,7 @@ public class NormaController {
     
     @PostMapping(path="/addNorma")
     public @ResponseBody Resposta addNorma( @RequestBody NormaUI norma ){
+       /*com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores*/
        
         normaChk = normaRepository.findByNome(norma.getNome());
         
@@ -67,8 +68,37 @@ public class NormaController {
     
     @PostMapping(path="/updateNorma")
     public @ResponseBody Resposta updateNorma( @RequestBody NormaUI norma ){
+        /*com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores*/
+        
+        
+        normaChk = normaRepository.findByNormaId(norma.getNormaId());
+        if( normaChk.isEmpty() ){
+            return new Resposta(NORMA_INEXISTENTE, ME_C_0);
+        }
+        else if(norma.getUrl() == null ){
+            return new Resposta(URLNULO, ME17);
+        }
+        else{
+            Norma normaAntiga = normaChk.get();//salvo a norma antiga para enviar email com alteracoes
+            
+            if( norma.isIsActive() == false ) {
+                try{
+                    normaObject = normaRepository.findByNormaId(norma.getNormaId()).get();
+                    normaObject.setNome(norma.getNome());
+                    normaObject.setUrl(norma.getUrl());
+                    normaObject.setDescricao(norma.getDescricao());
+                    
+                    /*enviarEmail()*/
+                    /*salvarDados()*/
+                    
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
         return new Resposta(OK, "OK");
     }
-    
+
+  
     
 }

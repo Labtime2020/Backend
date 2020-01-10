@@ -6,12 +6,14 @@
 package com.example.postgretest.model;
 
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -52,6 +54,9 @@ public class Norma {
     private Usuario deletionUser;
     @NotBlank
     private boolean isActive;/*situacao da norma*/
+    /*@ManyToMany
+    @JoinColumn(name="usuariosLinkados")
+    private List<Usuario> usuarios;*/
     
     public Norma(long normaId, String nome, String descricao, String url, Date registerDate, Date deletionDate, Usuario creationUser, Usuario deletionUser, boolean isActive) {
         this.normaId = normaId;
@@ -99,7 +104,7 @@ public class Norma {
         return deletionUser;
     }
 
-    public boolean getIsActive() {
+    public boolean isActive() {
         return this.isActive;
     }
     
