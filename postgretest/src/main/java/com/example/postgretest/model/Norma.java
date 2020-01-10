@@ -5,6 +5,8 @@
  */
 package com.example.postgretest.model;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +15,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.ManyToMany;
+import javax.persistence.JoinTable;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -52,8 +56,19 @@ public class Norma {
     private Usuario deletionUser;
     @NotBlank
     private boolean isActive;/*situacao da norma*/
+
+    @ManyToMany
+    @JoinTable(name = "norma_usuario",
+    		joinColumns = { @JoinColumn(name = "fk_norma")},
+    		inverseJoinColumns = { @JoinColumn(name = "fk_usuario") })
+    private List<Usuario> usuarios = new ArrayList<Usuario>();//usuarios que favoritaram essa norma
+
+    public List<Usuario> getUsuarios(){
+    	return this.usuarios;
+    }
     
-    public Norma(long normaId, String nome, String descricao, String url, Date registerDate, Date deletionDate, Usuario creationUser, Usuario deletionUser, boolean isActive) {
+    public Norma(long normaId, String nome, String descricao, String url, Date registerDate, Date deletionDate, 
+    	Usuario creationUser, Usuario deletionUser, boolean isActive) {
         this.normaId = normaId;
         this.nome = nome;
         this.descricao = descricao;

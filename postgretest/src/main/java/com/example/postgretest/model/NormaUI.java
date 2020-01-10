@@ -10,13 +10,13 @@ package com.example.postgretest.model;
  * @author labtime
  */
 public class NormaUI {
-    private long normaId;
-    private String nome;
-    private String descricao;
-    private long creationUser;//id do usuario que criou a norma
-    private long deletionUser;//id do usuario que removeu a norma
-    private String url;
-    private boolean isActive;
+    public long normaId;
+    public String nome;
+    public String descricao;
+    public long creationUser;//id do usuario que criou a norma
+    public long deletionUser;//id do usuario que removeu a norma
+    public String url;
+    public boolean isActive;
 
     public NormaUI(long normaId, String nome, String descricao, long creationUser, long deletionUser, String url, boolean isActive) {
         this.normaId = normaId;

@@ -12,13 +12,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+
 import com.example.postgretest.model.DesbloqueioToken;
 import com.example.postgretest.repository.DesbloqueioTokenRepository;
 import com.example.postgretest.service.EmailSenderService;
 import com.example.postgretest.Controller.Resposta;
 import com.example.postgretest.model.Usuario;
 import com.example.postgretest.model.UsuarioUI;
+import com.example.postgretest.model.Norma;
+import com.example.postgretest.model.NormaUI;
 import com.example.postgretest.repository.UserRepository;
+import com.example.postgretest.repository.NormaRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -54,6 +59,9 @@ public class User1Controller {
 
     @Autowired
     private EmailSenderService javaMailSender;
+
+    @Autowired
+    private NormaRepository normaRepository;
     
     @PostMapping("/cadastrar")
     public Resposta cadastrar(@RequestBody UsuarioUI usuario){
@@ -78,6 +86,18 @@ public class User1Controller {
 
     		return new Resposta(OK, "Usuario criado com sucesso");
     	}
+    }
+
+    @PostMapping("/adicionarfavorito")
+    public Resposta adicionarfavorito(@RequestBody NormaUI norma, Authentication auth){
+        Norma nor = normaRepository.findByNome(norma.nome).get();
+        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
+
+        user.getFavoritos().add(nor);
+
+        userRepository.save(user);
+
+        return new Resposta(OK, "favoritado com sucesso");
     }
 
     @GetMapping("/buscarusuarios")

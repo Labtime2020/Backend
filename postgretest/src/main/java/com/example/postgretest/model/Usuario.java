@@ -7,6 +7,8 @@ package com.example.postgretest.model;
 
 import java.io.Serializable;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToOne;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -28,7 +31,7 @@ import javax.validation.constraints.Size;
  * @author labtime
  */
 @Entity
-@Table(name="Usuario", uniqueConstraints = @UniqueConstraint(columnNames = "email", name="emailConstraint"))
+@Table(name="usuario", uniqueConstraints = @UniqueConstraint(columnNames = "email", name="emailConstraint"))
 public class Usuario implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,7 +61,14 @@ public class Usuario implements Serializable{
     @Column
     @Temporal(TemporalType.DATE)
     private Date adminEndDate;
+
+    @ManyToMany(mappedBy="usuarios")
+    private List<Norma> favoritos = new ArrayList<Norma>();
     
+    public List<Norma> getFavoritos(){
+        return this.favoritos;
+    }
+
     public Usuario(){
     }
 
