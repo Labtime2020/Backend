@@ -44,4 +44,11 @@ public class EmailSenderService {
 
     	this.sendEmail(msg);
     }
+    @Async
+    public void sendEmailComModificacoes(Usuario user, String msg){
+        SimpleMailMessage mensagem = new SimpleMailMessage();
+        mensagem.setTo(user.getEmail());
+        mensagem.setSubject(msg);
+        this.sendEmail(mensagem);
+    }
 }
