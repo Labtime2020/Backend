@@ -44,19 +44,16 @@ public class Norma {
     @Column
     @Temporal(TemporalType.DATE)
     private Date deletionDate;
-    
     @OneToOne
     @JoinColumn(name="creationUser")
     private Usuario creationUser;
     @OneToOne
     @JoinColumn(name="deletionUser")
     private Usuario deletionUser;
+    @NotBlank
+    private boolean isActive;/*situacao da norma*/
     
-    /*@OneToOne
-    @JoinColumn(name="email")
-    private Usuario deletionUser;*/
-    
-    public Norma(long normaId, String nome, String descricao, String url, Date registerDate, Date deletionDate, Usuario creationUser, Usuario deletionUser) {
+    public Norma(long normaId, String nome, String descricao, String url, Date registerDate, Date deletionDate, Usuario creationUser, Usuario deletionUser, boolean isActive) {
         this.normaId = normaId;
         this.nome = nome;
         this.descricao = descricao;
@@ -65,6 +62,7 @@ public class Norma {
         this.deletionDate = deletionDate;
         this.creationUser = creationUser;
         this.deletionUser = deletionUser;
+        this.isActive = isActive;
     }
     public Norma(){
         
@@ -101,6 +99,10 @@ public class Norma {
         return deletionUser;
     }
 
+    public boolean getIsActive() {
+        return this.isActive;
+    }
+    
     public void setNormaId(long normaId) {
         this.normaId = normaId;
     }
@@ -131,6 +133,10 @@ public class Norma {
 
     public void setDeletionUser(Usuario deletionUser) {
         this.deletionUser = deletionUser;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
     
     

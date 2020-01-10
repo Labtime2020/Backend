@@ -37,7 +37,8 @@ public class NormaController {
     @Autowired
     UserRepository userRepository;
    
-    private Optional<Norma> normaChk; 
+    private Optional<Norma> normaChk;
+    private Optional<Usuario> userChk;
     private Norma normaObject;
     
     @PostMapping(path="/addNorma")
@@ -45,17 +46,29 @@ public class NormaController {
        
         normaChk = normaRepository.findByNome(norma.getNome());
         
-        if( !normaChk.isEmpty() ){
-            return new Resposta(ERRO, "Falha");
-        }
+        if( !normaChk.isEmpty() )
+            return new Resposta(NORMAJAEXISTE, ME15);
+        else if( norma.getUrl() == null )
+            return new Resposta(URLNULO,ME17);
         else{
-            Usuario usr = userRepository.findById(norma.getCreationUser()).get();//obtnho o usuario pelo repositorio.
-            System.out.println(usr.getAdminBeginDate() + "blablablabla nao eh nulo");
-            Norma normaObject = new Norma(1, norma.getNome(), norma.getDescricao(), null, new Date(), null, usr, usr);
-            
-            normaRepository.save(normaObject);
-            return new Resposta(OK, "teste certo");
+            /*Falta extrair o ID pelo token*/
+            userChk = userRepository.findById(norma.getCreationUser());
+            if( userChk.isEmpty() )
+                return new Resposta(SEMUSER, "Nenhum usuario com este ID");
+            else{
+                Usuario usr = userChk.get();//obtnho o usuario com o ID.
+                Norma normaObject = new Norma(1, norma.getNome(), norma.getDescricao(), null, new Date(), null, usr, usr, true);
+                normaRepository.save(normaObject);
+                return new Resposta(OK, "Norma cadastrada com sucesso");
+            }
         }
+        
     }
+    
+    @PostMapping(path="/updateNorma")
+    public @ResponseBody Resposta updateNorma( @RequestBody NormaUI norma ){
+        return new Resposta(OK, "OK");
+    }
+    
     
 }
