@@ -13,6 +13,8 @@ public final class Status{
         public static final int BLOQUEADO = 9;
         public static final int NORMAJAEXISTE = 10;
         public static final int URLNULO = 11;
+        public static final int NORMA_INEXISTENTE = 12;
+        public static final String ME_C_0 = "Norma inexistente";
 	public static final String ME09 = "Usuario ou senha incorretos";
 	public static final String ME10_2 = "Usuario bloqueado";
 	public static final String ME10_1 = "Senha incorreta, usuario bloqueado, instrucoes para desbloqueio enviado no email informado";

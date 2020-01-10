@@ -28,7 +28,7 @@ public class NormaUI {
         this.isActive = isActive;
     }
 
-    public long getUserId() {
+    public long getNormaId() {
         return normaId;
     }
 
@@ -50,6 +50,11 @@ public class NormaUI {
     public String getUrl() {
         return url;
     }
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+    
 
     public void setNormaId(long normaId) {
         this.normaId = normaId;
@@ -74,6 +79,10 @@ public class NormaUI {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
     
    
