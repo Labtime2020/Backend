@@ -89,8 +89,12 @@ public class User1Controller {
     }
 
     @PostMapping("/adicionarfavorito")
-    public Resposta adicionarfavorito(@RequestBody NormaUI norma, Authentication auth){
+    public Resposta adicionarfavorito(Authentication auth, @RequestBody NormaUI norma){
         Norma nor = normaRepository.findByNome(norma.nome).get();
+        System.out.println("aqui");
+
+        System.out.println(auth.getName());
+
         Usuario user = userRepository.findByEmail(auth.getName()).get(0);
 
         user.getFavoritos().add(nor);

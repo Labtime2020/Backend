@@ -29,7 +29,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/incrementar_erro/*").permitAll()
                         .antMatchers("/desbloquear*").permitAll()
                         .antMatchers("/addNorma").permitAll()
-                        .antMatchers("/adicionarfavorito").permitAll()
 			.antMatchers(HttpMethod.POST, "/login").permitAll()
 			.anyRequest().authenticated()
 			.and()
