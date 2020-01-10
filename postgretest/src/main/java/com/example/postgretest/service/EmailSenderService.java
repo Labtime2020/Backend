@@ -48,7 +48,9 @@ public class EmailSenderService {
     public void sendEmailComModificacoes(Usuario user, String msg){
         SimpleMailMessage mensagem = new SimpleMailMessage();
         mensagem.setTo(user.getEmail());
-        mensagem.setSubject(msg);
+        mensagem.setSubject("Alteracoes na norma");
+        mensagem.setText(msg);
+        
         this.sendEmail(mensagem);
     }
 }
