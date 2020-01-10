@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.postgretest.repository.UserRepository;
+import com.example.postgretest.service.EmailSenderService;
 import static com.example.postgretest.util.Status.*;
 import java.util.Date;
 import java.time.LocalDate;
@@ -33,10 +34,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class NormaController {
     @Autowired
     NormaRepository normaRepository;
-    
     @Autowired
     UserRepository userRepository;
-   
+    @Autowired
+    private EmailSenderService javaMailSender;
     private Optional<Norma> normaChk;
     private Optional<Usuario> userChk;
     private Norma normaObject;
@@ -58,7 +59,7 @@ public class NormaController {
                 return new Resposta(SEMUSER, "Nenhum usuario com este ID");
             else{
                 Usuario usr = userChk.get();//obtnho o usuario com o ID.
-                Norma normaObject = new Norma(1, norma.getNome(), norma.getDescricao(), null, new Date(), null, usr, usr, true);
+                Norma normaObject = new Norma(1, norma.getNome(), norma.getDescricao(), norma.getUrl(), new Date(), null, usr, usr, true);
                 normaRepository.save(normaObject);
                 return new Resposta(OK, "Norma cadastrada com sucesso");
             }
@@ -69,7 +70,6 @@ public class NormaController {
     @PostMapping(path="/updateNorma")
     public @ResponseBody Resposta updateNorma( @RequestBody NormaUI norma ){
         /*com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores*/
-        
         
         normaChk = normaRepository.findByNormaId(norma.getNormaId());
         if( normaChk.isEmpty() ){
@@ -87,8 +87,18 @@ public class NormaController {
                     normaObject.setNome(norma.getNome());
                     normaObject.setUrl(norma.getUrl());
                     normaObject.setDescricao(norma.getDescricao());
+                    /*devemos enviar e-mail para os usuarios*/
+                    if(normaObject.getUsuarios().isEmpty() == false){
+                        Usuario iterator;
+                        String msg;
+                        for( int i = 0; i < normaObject.getUsuarios().size(); i++ ){
+                            iterator = normaObject.getUsuarios().get(i);
+                            System.out.println(iterator.getNome());
+                            msg = "Nome antigo: " + normaAntiga.getNome() + "Nome novo: " + norma.getNome();
+                            javaMailSender.sendEmailComModificacoes(iterator, msg);
+                        }
+                    }
                     
-                    /*enviarEmail()*/
                     /*salvarDados()*/
                     
                 }catch(Exception e){
