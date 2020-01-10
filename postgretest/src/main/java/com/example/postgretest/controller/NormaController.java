@@ -91,11 +91,13 @@ public class NormaController {
                     if(normaObject.getUsuarios().isEmpty() == false){
                         Usuario iterator;
                         String msg;
+                        System.out.println("\n\n entrou!!! " + normaObject.getUsuarios().size());
                         for( int i = 0; i < normaObject.getUsuarios().size(); i++ ){
                             iterator = normaObject.getUsuarios().get(i);
-                            System.out.println(iterator.getNome());
+                            System.out.println(iterator.getNome() + "blablablablabla");
                             msg = "Nome antigo: " + normaAntiga.getNome() + "Nome novo: " + norma.getNome();
                             javaMailSender.sendEmailComModificacoes(iterator, msg);
+                            normaRepository.save(normaObject);
                         }
                     }
                     
