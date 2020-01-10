@@ -104,6 +104,36 @@ public class User1Controller {
         return new Resposta(OK, "favoritado com sucesso");
     }
 
+    @PostMapping("/removerfavorito")
+    public Resposta removerfavorito(Authentication auth, @RequestBody NormaUI norma){
+        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
+
+        for(int i = 0 ; i < user.getFavoritos().size() ; i++){
+            if(user.getFavoritos().get(i).getNome() == norma.nome){
+                user.getFavoritos().remove(i);
+                break;
+            }
+        }
+
+        userRepository.save(user);
+
+        return new Resposta(OK, "desfavoritado com sucesso");
+    }
+
+    @PostMapping("/listarfavoritos")
+    public List<NormaUI> listarfavoritos(Authentication auth){
+        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
+
+        List<NormaUI> favoritos = new ArrayList<>();
+
+        for(Norma norma: user.getFavoritos()){
+            favoritos.add(new NormaUI(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getCreationUser().getId(),
+                norma.getDeletionUser().getId(), norma.getUrl(), norma.isActive()));
+        }
+
+        return favoritos;
+    }
+
     @GetMapping("/buscarusuarios")
     public List<UsuarioUI> buscarusuarios(){
     	System.out.println("Buscando todos os usuarios");

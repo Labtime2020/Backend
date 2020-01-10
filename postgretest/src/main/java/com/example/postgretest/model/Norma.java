@@ -58,11 +58,8 @@ public class Norma {
     private Usuario deletionUser;
     private boolean isActive;/*situacao da norma*/
 
-    @ManyToMany
-    @JoinTable(name = "norma_usuario",
-    		joinColumns = { @JoinColumn(name = "fk_norma")},
-    		inverseJoinColumns = { @JoinColumn(name = "fk_usuario") })
-    private List<Usuario> usuarios = new ArrayList<Usuario>();//usuarios que favoritaram essa norma
+    @ManyToMany(mappedBy="favoritos")
+    private List<Usuario> usuarios = new ArrayList<Usuario>();
 
     public List<Usuario> getUsuarios(){
     	return this.usuarios;

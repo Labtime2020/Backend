@@ -64,9 +64,12 @@ public class Usuario implements Serializable{
     @Temporal(TemporalType.DATE)
     private Date adminEndDate;
 
-    @ManyToMany(mappedBy="usuarios")
-    private List<Norma> favoritos = new ArrayList<Norma>();
-    
+    @ManyToMany
+    @JoinTable(name = "usuario_norma",
+            joinColumns = { @JoinColumn(name = "fk_usuario")},
+            inverseJoinColumns = { @JoinColumn(name = "fk_norma") })
+    private List<Norma> favoritos = new ArrayList<Norma>();//usuarios que favoritaram essa norma
+
     public List<Norma> getFavoritos(){
         return this.favoritos;
     }
