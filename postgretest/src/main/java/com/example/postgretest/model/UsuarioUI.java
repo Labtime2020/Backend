@@ -18,6 +18,10 @@ public class UsuarioUI {
     public boolean isAdmin;
     public int status;
 
+    public UsuarioUI(){
+
+    }
+    
     public UsuarioUI( Long id, String email, String nome, String sobrenome, boolean isAdmin, String password, int status) {
         this.id = id;
         this.email = email;
