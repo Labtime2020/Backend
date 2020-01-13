@@ -90,17 +90,16 @@ public class User1Controller {
 
     @PostMapping("/adicionarfavorito")
     public Resposta adicionarfavorito(Authentication auth, @RequestBody NormaUI norma){
-        Norma nor = normaRepository.findByNome(norma.nome).get();
-        System.out.println("aqui");
-
-        System.out.println(auth.getName());
-
-        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
-
-        user.getFavoritos().add(nor);
-
-        userRepository.save(user);
-
+        try{
+            Norma nor = normaRepository.findByNome(norma.nome).get();
+            System.out.println("aqui");
+            System.out.println(auth.getName()+"\n\n\n\n\n\n");
+            Usuario user = userRepository.findByEmail(auth.getName()).get(0);
+            user.getFavoritos().add(nor);
+            userRepository.save(user);
+        }catch(Exception e){
+            System.out.println("erro" + e.getMessage());
+        }
         return new Resposta(OK, "favoritado com sucesso");
     }
 
@@ -112,7 +111,7 @@ public class User1Controller {
             System.out.println(user.getFavoritos().get(i).getNome() + " == " + norma.nome);
 
             if(user.getFavoritos().get(i).getNormaId() == norma.normaId){
-                // System.out.println("removendo...");
+                 System.out.println("removendo...");
                 user.getFavoritos().remove(i);
                 break;
             }
@@ -130,8 +129,7 @@ public class User1Controller {
         List<NormaUI> favoritos = new ArrayList<>();
 
         for(Norma norma: user.getFavoritos()){
-            favoritos.add(new NormaUI(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getCreationUser().getId(),
-                norma.getDeletionUser().getId(), norma.getUrl(), norma.isActive()));
+            favoritos.add(new NormaUI(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getUrl(), norma.isActive()));
         }
 
         return favoritos;
