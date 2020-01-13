@@ -5,6 +5,9 @@
  */
 package com.example.postgretest.Controller;
 
+import java.io.IOException;
+import java.util.stream.Collectors;
+
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.ArrayList;
@@ -12,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 
 import com.example.postgretest.model.DesbloqueioToken;
@@ -25,6 +29,8 @@ import com.example.postgretest.model.NormaUI;
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.repository.NormaRepository;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,19 +41,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import com.example.postgretest.storage.StorageFileNotFoundException;
+import com.example.postgretest.storage.FileSystemStorageService;
 
 import java.util.Date;
 import java.time.LocalDate;
 
 import static com.example.postgretest.util.Status.*;
 
-/**
- *
- * @author labtime
- */
 @RestController
-
 public class User1Controller {
+    private final FileSystemStorageService storageService;
+
     @Autowired
     private DesbloqueioTokenRepository desbloqueioTokenRepository;
 
@@ -63,8 +74,39 @@ public class User1Controller {
     @Autowired
     private NormaRepository normaRepository;
     
+    @Autowired
+    public User1Controller(FileSystemStorageService storageService){
+        this.storageService = storageService;
+    }
+
+    @PostMapping("/obter_avatar_usuario")
+    @ResponseBody
+    public ResponseEntity<Resource> obter_avatar_usuario(@RequestBody UsuarioUI usuario) {
+        Usuario user = userRepository.findByEmail(usuario.email).get(0);
+
+        Resource file = storageService.loadAsResource(user.getAvatar());
+
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    }
+
+    @PostMapping("/obter_minha_avatar")
+    public ResponseEntity<Resource> obter_minha_avatar(Authentication auth){
+        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
+
+        Resource file = storageService.loadAsResource(user.getAvatar());
+
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    }
+
     @PostMapping("/cadastrar")
-    public Resposta cadastrar(@RequestBody UsuarioUI usuario){
+    public Resposta cadastrar(@RequestParam("file") MultipartFile file, @RequestParam("usuario") String usuarioString) 
+    throws JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+
+        UsuarioUI usuario = mapper.readValue(usuarioString, UsuarioUI.class);
+
     	System.out.println("Cadastrando Usuario");
 
     	List<Usuario> users = userRepository.findByEmail(usuario.email);
@@ -81,8 +123,18 @@ public class User1Controller {
 
 				nuser.setAdminBeginDate(new Date());
 			}	
-			
-			userRepository.save(nuser);
+
+            nuser.setAvatar("avatar_" + usuario.email + "." 
+                        + storageService.getExtensao(file.getOriginalFilename()));
+
+            userRepository.save(nuser);
+
+            try{
+
+                storageService.salvar(file, nuser.getAvatar());
+            }catch(Exception ex){
+                return new Resposta(ERRO, "Falha ao salvar avatar");
+            }
 
     		return new Resposta(OK, "Usuario criado com sucesso");
     	}
