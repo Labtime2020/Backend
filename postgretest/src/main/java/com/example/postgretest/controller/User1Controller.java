@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 
 import com.example.postgretest.model.DesbloqueioToken;
@@ -28,6 +29,8 @@ import com.example.postgretest.model.NormaUI;
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.repository.NormaRepository;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -76,6 +79,27 @@ public class User1Controller {
         this.storageService = storageService;
     }
 
+    @PostMapping("/obter_avatar_usuario")
+    @ResponseBody
+    public ResponseEntity<Resource> obter_avatar_usuario(@RequestBody UsuarioUI usuario) {
+        Usuario user = userRepository.findByEmail(usuario.email).get(0);
+
+        Resource file = storageService.loadAsResource(user.getAvatar());
+
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    }
+
+    @PostMapping("/obter_minha_avatar")
+    public ResponseEntity<Resource> obter_minha_avatar(Authentication auth){
+        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
+
+        Resource file = storageService.loadAsResource(user.getAvatar());
+
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    }
+
     @PostMapping("/cadastrar")
     public Resposta cadastrar(@RequestParam("file") MultipartFile file, @RequestParam("usuario") String usuarioString) 
     throws JsonProcessingException{
@@ -100,13 +124,14 @@ public class User1Controller {
 				nuser.setAdminBeginDate(new Date());
 			}	
 
+            nuser.setAvatar("avatar_" + usuario.email + "." 
+                        + storageService.getExtensao(file.getOriginalFilename()));
+
             userRepository.save(nuser);
 
             try{
-                System.out.println(file.getOriginalFilename());
 
-                storageService.salvar(file, "avatar_" + usuario.email + "." 
-                        + storageService.getExtensao(file.getOriginalFilename()));
+                storageService.salvar(file, nuser.getAvatar());
             }catch(Exception ex){
                 return new Resposta(ERRO, "Falha ao salvar avatar");
             }

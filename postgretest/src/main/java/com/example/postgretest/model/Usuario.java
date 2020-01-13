@@ -44,6 +44,9 @@ public class Usuario implements Serializable{
     private String nome;
     @Column(length=100)
     @NotBlank
+    private String avatar;
+    @Column(length=100)
+    @NotBlank
     private String email;
     @Column(length=200)
     @NotBlank
@@ -88,6 +91,13 @@ public class Usuario implements Serializable{
         this.tentativaErrada = 0;
     }
     
+    public void setAvatar(String avatar){
+        this.avatar = avatar;
+    }
+
+    public String getAvatar(){
+        return this.avatar;
+    }
 
     public int getStatus() {
         return status;
