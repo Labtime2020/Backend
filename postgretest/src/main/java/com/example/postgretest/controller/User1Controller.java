@@ -79,7 +79,7 @@ public class User1Controller {
         this.storageService = storageService;
     }
 
-    @PostMapping("/obter_avatar_usuario")
+    @PostMapping("/obteravatarusuario")
     @ResponseBody
     public ResponseEntity<Resource> obter_avatar_usuario(@RequestBody UsuarioUI usuario) {
         Usuario user = userRepository.findByEmail(usuario.email).get(0);
@@ -90,7 +90,7 @@ public class User1Controller {
             "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
-    @PostMapping("/obter_minha_avatar")
+    @PostMapping("/obterminhaavatar")
     public ResponseEntity<Resource> obter_minha_avatar(Authentication auth){
         Usuario user = userRepository.findByEmail(auth.getName()).get(0);
 
@@ -141,7 +141,7 @@ public class User1Controller {
     }
 
     @PostMapping("/adicionarfavorito")
-    public Resposta adicionarfavorito(Authentication auth, @RequestBody NormaUI norma){
+    public Resposta adicionar_favorito(Authentication auth, @RequestBody NormaUI norma){
         try{
             Norma nor = normaRepository.findByNome(norma.nome).get();
             System.out.println("aqui");
@@ -156,7 +156,7 @@ public class User1Controller {
     }
 
     @PostMapping("/removerfavorito")
-    public Resposta removerfavorito(Authentication auth, @RequestBody NormaUI norma){
+    public Resposta remover_favorito(Authentication auth, @RequestBody NormaUI norma){
         Usuario user = userRepository.findByEmail(auth.getName()).get(0);
 
         for(int i = 0 ; i < user.getFavoritos().size() ; i++){
