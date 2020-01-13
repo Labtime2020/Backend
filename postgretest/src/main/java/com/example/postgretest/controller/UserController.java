@@ -51,14 +51,17 @@ public class UserController {
     public @ResponseBody Resposta updateData(@RequestBody UsuarioUI user){
         System.out.println(user.getEmail());
         
-       b = userRepository.findById(user.id);
+        List <Usuario> c = userRepository.findByEmail(user.getEmail());
         
-        if( b.isEmpty() )
+        if( c.isEmpty() )
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
-        else if( userRepository.findByEmail(user.email).isEmpty() == false ) //ja existe user com email fornecido, abortar
+        else if( userRepository.findByEmail(user.email).isEmpty() == false && c.get(0).getEmail() != user.getEmail() ) //ja existe user com email fornecido, abortar
             return new Resposta(USERJAEXISTE, "ME04_2 - Usuario com email " + user.getEmail() + " ja existe no sistema");
+        else if( c.get(0).getPassword() == user.getPassword() ){
+            return new Resposta(MESMASENHA, ME19);
+        }
         try{
-            a = b.get();
+            a = c.get(0);
             a.setId(user.getId());
             a.setEmail(user.getEmail());
             a.setNome(user.getNome());

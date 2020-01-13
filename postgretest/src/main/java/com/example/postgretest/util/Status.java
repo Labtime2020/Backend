@@ -14,6 +14,7 @@ public final class Status{
         public static final int NORMAJAEXISTE = 10;//norma ja consta no sistema
         public static final int URLNULO = 11;
         public static final int NORMA_INEXISTENTE = 12;
+        public static final int MESMASENHA = 13;
         public static final String ME_C_0 = "Norma inexistente";
         public static final String ME01 = "Erro";
 	public static final String ME09 = "Usuario ou senha incorretos";
@@ -25,6 +26,7 @@ public final class Status{
 	public static final String ME12 = "Token invalido";
         public static final String ME15 = "Norma ja cadastrada";
         public static final String ME17 = "Url nulo";
+        public static final String ME19 = "A senha fornecida eh a mesma da atual";
         public static final String MS01 = "Operacao realizada com sucesso";
 	public static final String DIVISOR = "&&&^^^^^()()()()";
 	public static final String API_ADDRESS = "http://localhost:9090";
