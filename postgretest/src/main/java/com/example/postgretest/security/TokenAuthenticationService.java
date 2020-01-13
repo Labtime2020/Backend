@@ -33,6 +33,8 @@ public class TokenAuthenticationService{
 				.signWith(SignatureAlgorithm.HS512, SECRET)
 				.compact();
 		
+		System.out.println(username + " foi passado no token");
+		
 		response.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + JWT);
 	}
 
