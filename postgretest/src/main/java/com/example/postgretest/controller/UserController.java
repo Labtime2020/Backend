@@ -55,8 +55,11 @@ public class UserController {
         
         if( c.isEmpty() )
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
-        else if( c.get(0).getEmail() != user.getEmail() ) //ja existe user com email fornecido, abortar
+        else if( c.get(0).getEmail().equals(user.getEmail()) == false){ //ja existe user com email fornecido, abortar
+            System.out.println(c.get(0).getEmail() + " == " + user.getEmail());
             return new Resposta(USERJAEXISTE, "ME04_2 - Usuario com email " + user.getEmail() + " ja existe no sistema");
+            
+        }
         else if( c.get(0).getPassword() == user.getPassword() ){
             return new Resposta(MESMASENHA, ME19);
         }
