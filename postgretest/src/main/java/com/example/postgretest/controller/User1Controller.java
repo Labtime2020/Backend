@@ -5,6 +5,9 @@
  */
 package com.example.postgretest.Controller;
 
+import java.io.IOException;
+import java.util.stream.Collectors;
+
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.ArrayList;
@@ -35,19 +38,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import com.example.postgretest.storage.StorageFileNotFoundException;
+import com.example.postgretest.storage.FileSystemStorageService;
 
 import java.util.Date;
 import java.time.LocalDate;
 
 import static com.example.postgretest.util.Status.*;
 
-/**
- *
- * @author labtime
- */
 @RestController
-
 public class User1Controller {
+    private final FileSystemStorageService storageService;
+
     @Autowired
     private DesbloqueioTokenRepository desbloqueioTokenRepository;
 
@@ -63,8 +71,18 @@ public class User1Controller {
     @Autowired
     private NormaRepository normaRepository;
     
+    @Autowired
+    public User1Controller(FileSystemStorageService storageService){
+        this.storageService = storageService;
+    }
+
     @PostMapping("/cadastrar")
-    public Resposta cadastrar(@RequestBody UsuarioUI usuario){
+    public Resposta cadastrar(@RequestParam("file") MultipartFile file, @RequestParam("usuario") String usuarioString) 
+    throws JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+
+        UsuarioUI usuario = mapper.readValue(usuarioString, UsuarioUI.class);
+
     	System.out.println("Cadastrando Usuario");
 
     	List<Usuario> users = userRepository.findByEmail(usuario.email);
@@ -81,8 +99,17 @@ public class User1Controller {
 
 				nuser.setAdminBeginDate(new Date());
 			}	
-			
-			userRepository.save(nuser);
+
+            userRepository.save(nuser);
+
+            try{
+                System.out.println(file.getOriginalFilename());
+
+                storageService.salvar(file, "avatar_" + usuario.email + "." 
+                        + storageService.getExtensao(file.getOriginalFilename()));
+            }catch(Exception ex){
+                return new Resposta(ERRO, "Falha ao salvar avatar");
+            }
 
     		return new Resposta(OK, "Usuario criado com sucesso");
     	}
