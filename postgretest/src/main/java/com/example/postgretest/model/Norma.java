@@ -112,7 +112,7 @@ public class Norma {
         return deletionUser;
     }
 
-    public boolean isActive() {
+    public boolean isIsActive() {
         return this.isActive;
     }
     

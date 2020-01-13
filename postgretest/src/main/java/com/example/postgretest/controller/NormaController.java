@@ -121,5 +121,37 @@ public class NormaController {
             }   
         }
         return new Resposta(OK, MS01);
-    }    
+    }
+    
+    @PostMapping(path="/updateNormaStatus")
+    public @ResponseBody Resposta updateStatus( Authentication auth, @RequestBody NormaUI norma){
+        Optional<Norma> n = normaRepository.findByNormaId(norma.getNormaId());
+        try{
+            if( n.isEmpty() ){
+            return new Resposta(NORMA_INEXISTENTE, ME_C_0);
+            }
+            else if( norma.isIsActive() == n.get().isIsActive() ){
+                return new Resposta(ERRO, "Nao houve mudanca de estado");
+            }/*nao houve mudanca de estado*/
+            else{
+                System.out.println("Entrou!");
+                Norma n1 = n.get();
+                if( norma.isIsActive() == false ){//seto a data e usuarios de delecao
+                    n1.setDeletionDate(new Date());
+                    n1.setDeletionUser(userRepository.findByEmail(auth.getName()).get(0));
+                }
+                else{
+                    n1.setDeletionDate(null);
+                }
+                n1.setIsActive(norma.isIsActive());
+                 normaRepository.save(n1);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    
+       
+        return new Resposta(OK,MS01);
+    }
 }
