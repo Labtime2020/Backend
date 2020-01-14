@@ -63,6 +63,12 @@ public class Norma {
     @ManyToMany(mappedBy="favoritos")
     private List<Usuario> usuarios = new ArrayList<Usuario>();
 
+    @ManyToMany
+    @JoinTable(name = "norma_tag",
+            joinColumns = { @JoinColumn(name = "fk_norma")},
+            inverseJoinColumns = { @JoinColumn(name = "fk_tag") })
+    private List<Tag> tags = new ArrayList<Tag>();//tags dessa norma
+
     public List<Usuario> getUsuarios(){
     	return this.usuarios;
     }
@@ -79,9 +85,15 @@ public class Norma {
         this.deletionUser = deletionUser;
         this.isActive = isActive;
     }
+    
     public Norma(){
         
     }
+
+    public List<Tag> getTags(){
+        return this.tags;
+    }
+
     public long getNormaId() {
         return normaId;
     }

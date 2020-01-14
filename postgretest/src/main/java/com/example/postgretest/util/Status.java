@@ -30,7 +30,7 @@ public final class Status{
         public static final String ME19 = "A senha fornecida eh a mesma da atual";
         public static final String MS01 = "Operacao realizada com sucesso";
 	public static final String DIVISOR = "&&&^^^^^()()()()";
-	public static final String API_ADDRESS = "http://localhost:9090";
+	public static final String API_ADDRESS = "http://192.168.1.227:9090";
 	public static final String MCREDENTIAL = "LABTIME2020";
 	public static final String ERRO_SENHA_ERRADA = "Bad credentials";
 	public static final int MAX_NUM_TENTATIVAS = 5;//maximo numero de tentativas erradas no login

@@ -33,6 +33,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/uploadFile").permitAll()
                         .antMatchers("/updateNormaStatus").permitAll()
                         .antMatchers("/").permitAll()
+                        .antMatchers("/recuperarsenha").permitAll()
 			.antMatchers(HttpMethod.POST, "/login").permitAll()
 			.anyRequest().authenticated()
 			.and()

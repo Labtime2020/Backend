@@ -8,13 +8,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Async;
 
 import com.example.postgretest.model.Usuario;
+import com.example.postgretest.model.RedefinirSenhaToken;
+import com.example.postgretest.repository.RedefinirSenhaTokenRepository;
 import com.example.postgretest.model.DesbloqueioToken;
 import com.example.postgretest.repository.DesbloqueioTokenRepository;
+
+import static com.example.postgretest.util.Status.*;
 
 @Service("emailSenderService")
 public class EmailSenderService {
 	@Autowired
     private DesbloqueioTokenRepository desbloqueioTokenRepository;
+
+    @Autowired
+    private RedefinirSenhaTokenRepository redefinirSenhaTokenRepository;
 
     private JavaMailSender javaMailSender;
 
@@ -26,6 +33,23 @@ public class EmailSenderService {
     @Async
     public void sendEmail(SimpleMailMessage email) {
         javaMailSender.send(email);
+    }
+
+    @Async 
+    public void sendRedefinirSenhaToken(Usuario user){
+        RedefinirSenhaToken token = new RedefinirSenhaToken(user);
+
+        redefinirSenhaTokenRepository.save(token);
+
+        SimpleMailMessage msg = new SimpleMailMessage();
+
+        msg.setTo(user.getEmail());
+
+        msg.setSubject("Redefinicao de senha");
+
+        msg.setText("Para redefinir sua senha acesse o link " + API_ADDRESS + "/redefinirsenha?token=" + token.getRedefinirSenhaToken());
+
+        this.sendEmail(msg);
     }
 
     @Async
@@ -40,10 +64,11 @@ public class EmailSenderService {
 
     	msg.setSubject("Desbloqueio de usuario");
 
-    	msg.setText("Para desbloquear seu usuario acesse o link http://localhost:9090/desbloquear?token=" + token.getDesbloqueioToken());
+    	msg.setText("Para desbloquear seu usuario acesse o link " + API_ADDRESS + "/desbloquear?token=" + token.getDesbloqueioToken());
 
     	this.sendEmail(msg);
     }
+
     @Async
     public void sendEmailComModificacoes(Usuario user, String msg){
         SimpleMailMessage mensagem = new SimpleMailMessage();
