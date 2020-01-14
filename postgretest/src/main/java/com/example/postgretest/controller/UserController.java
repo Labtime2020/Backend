@@ -85,26 +85,6 @@ public class UserController {
     //         return new Resposta(USERJAEXISTE,"ME04_2 - Usuario com email " + user.getEmail() + " ja existe no sistema");
     // }
 
-    @PostMapping(path="/alterarsenha")
-    public @ResponseBody Resposta alterarsenha(Authentication auth, @RequestBody String novaSenha){
-        System.out.println(auth.getName() + " eh o email");
-
-        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
-
-        System.out.println(user.getPassword() + " == " + novaSenha);
-
-        if(user.getPassword().equals(novaSenha)){
-            return new Resposta(MESMASENHA, ME19);
-        }
-        
-
-        user.setPassword(novaSenha);
-
-        userRepository.save(user);
-
-        return new Resposta(OK, MS01 + "senha atualizada com sucesso");
-    }
-
     @PostMapping(path="/updateUser")
     public @ResponseBody Resposta updateData(@RequestParam("file") MultipartFile file, @RequestParam("usuario") String usuarioString)
     throws JsonProcessingException {

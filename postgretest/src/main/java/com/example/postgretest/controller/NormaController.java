@@ -67,6 +67,18 @@ public class NormaController {
         this.storageService = storageService;
     }
 
+    @GetMapping("/buscartags")
+    public TagUI buscartags(){
+        TagUI tags = new TagUI();
+        List<Tag> mtags = tagRepository.findAll();
+
+        for(Tag tg: mtags){
+            tags.tags.add(tg.getNome());
+        }
+
+        return tags;
+    }
+
     @PostMapping("/filtrarnormas")
     public Set<NormaUI> filtrarnormas(@RequestBody TagUI tags){
         Set<NormaUI> normas = new TreeSet<>();

@@ -242,6 +242,26 @@ public class User1Controller {
         }
     }
 
+    @PostMapping(path="/alterarsenha")
+    public @ResponseBody Resposta alterarsenha(Authentication auth, @RequestBody String novaSenha){//precisa de autenticacao...
+        System.out.println(auth.getName() + " eh o email");
+
+        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
+
+        System.out.println(user.getPassword() + " == " + novaSenha);
+
+        if(user.getPassword().equals(novaSenha)){
+            return new Resposta(MESMASENHA, ME19);
+        }
+        
+
+        user.setPassword(novaSenha);
+
+        userRepository.save(user);
+
+        return new Resposta(OK, MS01 + "senha atualizada com sucesso");
+    }
+
     @GetMapping("/incrementar_erro/{email}")
     public String incrementar_erro(HttpServletResponse response, @PathVariable String email){
         Usuario user = userRepository.findByEmail(email).get(0);
