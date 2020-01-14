@@ -45,6 +45,8 @@ public class Norma {
     @Column(length=200)
     private String url;
     @Column
+    private String arquivo;
+    @Column
     @Temporal(TemporalType.DATE)
     private Date registerDate;
     @Column
@@ -115,6 +117,10 @@ public class Norma {
     public boolean isIsActive() {
         return this.isActive;
     }
+
+    public String getArquivo() {
+        return arquivo;
+    }
     
     public void setNormaId(long normaId) {
         this.normaId = normaId;
@@ -151,6 +157,11 @@ public class Norma {
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
+
+    public void setArquivo(String arquivo) {
+        this.arquivo = arquivo;
+    }
+    
     
     
 }

@@ -17,6 +17,7 @@ public final class Status{
         public static final int MESMASENHA = 13;
         public static final String ME_C_0 = "Norma inexistente";
         public static final String ME01 = "Erro";
+        public static final String ME04_2 = "Email ja foi cadastrado por outro usuario";
 	public static final String ME09 = "Usuario ou senha incorretos";
 	public static final String ME10_2 = "Usuario bloqueado";
 	public static final String ME10_1 = "Senha incorreta, usuario bloqueado, instrucoes para desbloqueio enviado no email informado";

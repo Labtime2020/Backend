@@ -96,12 +96,13 @@ public class UserController {
         if(user.getPassword().equals(novaSenha)){
             return new Resposta(MESMASENHA, ME19);
         }
+        
 
         user.setPassword(novaSenha);
 
         userRepository.save(user);
 
-        return new Resposta(OK, "senha atualizada com sucesso");
+        return new Resposta(OK, MS01 + "senha atualizada com sucesso");
     }
 
     @PostMapping(path="/updateUser")
@@ -120,15 +121,13 @@ public class UserController {
         }
         else if( c.get(0).getEmail().equals(user.getEmail()) == false){ //ja existe user com email fornecido, abortar
             System.out.println(c.get(0).getEmail() + " == " + user.getEmail());
-            return new Resposta(USERJAEXISTE, "ME04_2 - Usuario com email " + user.getEmail() + " ja existe no sistema");
+            return new Resposta(USERJAEXISTE, ME04_2);
         }
 
         try{
             a = c.get(0);
-            a.setId(user.getId());
             a.setEmail(user.getEmail());
             a.setNome(user.getNome());
-            a.setPassword(user.getPassword());
             a.setSobrenome(user.getSobrenome());
             a.setStatus(user.getStatus());
             a.setAvatar("avatar_" + user.email + "." 
@@ -153,12 +152,12 @@ public class UserController {
     @PostMapping(path="/addUserAsAdmin")
     public @ResponseBody Resposta addAdmin(@RequestBody UsuarioUI user ){
         
-        b = userRepository.findById(user.id);
+        List<Usuario> c = userRepository.findByEmail(user.getEmail());
         
-        if( b.isEmpty() )
+        if( c.isEmpty() )
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
         
-        a = b.get();
+        a = c.get(0);
         a.setIsAdmin(true);
         a.setAdminBeginDate(new Date());
         a.setAdminEndDate(null);

@@ -70,11 +70,6 @@ public class NormaController {
     
     @PostMapping(path="/updateNorma")
     public @ResponseBody Resposta updateNorma( Authentication auth, @RequestBody NormaUI norma ){
-        /*com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores*/
-        
-        /*FALTA CHECAR A PARTE DE 
-        
-        INATIVACAO DA NORMA*/
         
         normaChk = normaRepository.findByNormaId(norma.getNormaId());
         if( normaChk.isEmpty() ){
@@ -113,7 +108,6 @@ public class NormaController {
                         }
                     }
                     normaRepository.save(normaObject);
-                    /*salvarDados()*/
                 }
                 
             }catch(Exception e){

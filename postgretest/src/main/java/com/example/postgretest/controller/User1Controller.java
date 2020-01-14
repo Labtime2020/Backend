@@ -112,7 +112,7 @@ public class User1Controller {
     	List<Usuario> users = userRepository.findByEmail(usuario.email);
     	
     	if(users.size() > 0){
-    		return new Resposta(ERRO, "Usuario com mesmo email ja cadastrado");
+    		return new Resposta(USERJAEXISTE, ME04_2);
     	}else{
     		Usuario nuser = new Usuario(123, usuario.nome, usuario.email, usuario.sobrenome, usuario.password, usuario.isAdmin, ATIVO);
 
@@ -123,7 +123,7 @@ public class User1Controller {
 
 				nuser.setAdminBeginDate(new Date());
 			}	
-
+            nuser.setRegisterDate(new Date());
             nuser.setAvatar("avatar_" + usuario.email + "." 
                         + storageService.getExtensao(file.getOriginalFilename()));
 
@@ -136,7 +136,7 @@ public class User1Controller {
                 return new Resposta(ERRO, "Falha ao salvar avatar");
             }
 
-    		return new Resposta(OK, "Usuario criado com sucesso");
+    		return new Resposta(OK, MS01 + "Usuario criado com sucesso");
     	}
     }
 
