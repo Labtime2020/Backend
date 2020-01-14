@@ -26,7 +26,7 @@ public class TokenAuthenticationService{
 	static final String TOKEN_PREFIX = "Bearer";
 	static final String HEADER_STRING = "Authorization";
 
-	static void addAuthentication(HttpServletResponse response, String username) {
+	public static void addAuthentication(HttpServletResponse response, String username) {
 		String JWT = Jwts.builder()
 				.setSubject(username)
 				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))

@@ -15,10 +15,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 
 import com.example.postgretest.model.DesbloqueioToken;
+import com.example.postgretest.model.RedefinirSenhaToken;
+import com.example.postgretest.repository.RedefinirSenhaTokenRepository;
 import com.example.postgretest.repository.DesbloqueioTokenRepository;
 import com.example.postgretest.service.EmailSenderService;
 import com.example.postgretest.Controller.Resposta;
@@ -46,6 +50,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.example.postgretest.security.TokenAuthenticationService;
 
 import com.example.postgretest.storage.StorageFileNotFoundException;
 import com.example.postgretest.storage.FileSystemStorageService;
@@ -61,6 +66,9 @@ public class User1Controller {
 
     @Autowired
     private DesbloqueioTokenRepository desbloqueioTokenRepository;
+
+    @Autowired
+    private RedefinirSenhaTokenRepository redefinirSenhaTokenRepository;
 
     @Autowired
     private EmailSenderService emailSenderService;
@@ -101,7 +109,7 @@ public class User1Controller {
     }
 
     @PostMapping("/cadastrar")
-    public Resposta cadastrar(@RequestParam("file") MultipartFile file, @RequestParam("usuario") String usuarioString) 
+    public Resposta cadastrar(@RequestParam(name="file", required=false) MultipartFile file, @RequestParam("usuario") String usuarioString) 
     throws JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
 
@@ -124,14 +132,17 @@ public class User1Controller {
 				nuser.setAdminBeginDate(new Date());
 			}	
 
-            nuser.setAvatar("avatar_" + usuario.email + "." 
+            nuser.setAvatar("avatar_not_found.jpg");
+
+            if(file != null)
+                nuser.setAvatar("avatar_" + usuario.email + "." 
                         + storageService.getExtensao(file.getOriginalFilename()));
 
             userRepository.save(nuser);
 
             try{
-
-                storageService.salvar(file, nuser.getAvatar());
+                if(file != null)
+                    storageService.salvar(file, nuser.getAvatar());
             }catch(Exception ex){
                 return new Resposta(ERRO, "Falha ao salvar avatar");
             }
@@ -202,8 +213,40 @@ public class User1Controller {
     	return usuarios;
     }
 
+    @PostMapping("/recuperarsenha")
+    public Resposta recuperarsenha(@RequestBody String email){
+        List< Usuario > user = userRepository.findByEmail(email);
+
+        if(user.size() == 0){
+            return new Resposta(ERRO, "nao existe usuario cadastrado para esse email");
+        }
+
+        Optional< RedefinirSenhaToken > token = redefinirSenhaTokenRepository.findByUserId(user.get(0).getId());
+
+        if(!token.isEmpty()){
+            redefinirSenhaTokenRepository.delete(token.get());
+        }
+
+        emailSenderService.sendRedefinirSenhaToken(user.get(0));
+        
+        return new Resposta(OK, "um email foi enviado com as instrucoes para redefinicao de senha");
+    }
+
+    @GetMapping("/redefinirsenha")
+    public Resposta redefinirsenha(HttpServletResponse response, @RequestParam("token")String mtoken){
+        RedefinirSenhaToken token = redefinirSenhaTokenRepository.findByRedefinirSenhaToken(mtoken);
+
+        if(token != null){
+            TokenAuthenticationService.addAuthentication(response, token.getUsuario().getEmail());//passe um token de autenticacao
+
+            return new Resposta(OK, "Token retornado no header");
+        }else{
+            return new Resposta(ERRO, "token invalido");
+        }
+    }
+
     @GetMapping("/incrementar_erro/{email}")
-    public String incrementar_erro(@PathVariable String email){
+    public String incrementar_erro(HttpServletResponse response, @PathVariable String email){
         Usuario user = userRepository.findByEmail(email).get(0);
         user.addTentativaErrada();
 
