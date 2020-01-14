@@ -90,6 +90,16 @@ public class Norma {
         
     }
 
+    public NormaUI toNormaUI(){
+        NormaUI norm = new NormaUI(this.getNormaId(), this.getNome(), this.getDescricao(), this.getUrl(), this.isIsActive());
+
+        for(Tag tag: this.getTags()){
+            norm.tags.add(tag.getNome());
+        }
+
+        return norm;
+    }
+
     public List<Tag> getTags(){
         return this.tags;
     }

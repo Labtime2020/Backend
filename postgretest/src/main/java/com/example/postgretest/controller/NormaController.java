@@ -10,6 +10,7 @@ import com.example.postgretest.model.Usuario;
 import com.example.postgretest.model.UsuarioUI;
 import com.example.postgretest.model.NormaUI;
 import com.example.postgretest.model.Tag;
+import com.example.postgretest.model.TagUI;
 import com.example.postgretest.repository.NormaRepository;
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.repository.TagRepository;
@@ -37,6 +38,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
@@ -64,19 +67,28 @@ public class NormaController {
         this.storageService = storageService;
     }
 
+    @PostMapping("/filtrarnormas")
+    public Set<NormaUI> filtrarnormas(@RequestBody TagUI tags){
+        Set<NormaUI> normas = new TreeSet<>();
+
+        for(String tag: tags.tags){
+            Tag tg = tagRepository.findByNome(tag).get();
+
+            for(Norma norma: tg.getNormas()){
+                normas.add(norma.toNormaUI());
+            }
+        }
+
+        return normas;
+    }
+
     @GetMapping("/buscarnormas")
     public List<NormaUI> buscarnormas(){
         List<Norma> norms = normaRepository.findAll();
         List<NormaUI> normas = new ArrayList<>();
 
         for(Norma norma: norms){
-            NormaUI norm = new NormaUI(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getUrl(), norma.isIsActive());
-
-            for(Tag tag: norma.getTags()){
-                norm.tags.add(tag.getNome());
-            }
-
-            normas.add(norm);
+            normas.add(norma.toNormaUI());
         }
 
         return normas;
@@ -148,7 +160,7 @@ public class NormaController {
             @RequestParam("norma") String n1 ) throws JsonProcessingException{
         
         System.out.println("atualizando norma");
-        
+
         ObjectMapper obj = new ObjectMapper();
         NormaUI norma = obj.readValue(n1, NormaUI.class);
         

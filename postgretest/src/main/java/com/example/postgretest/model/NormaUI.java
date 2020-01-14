@@ -5,14 +5,13 @@
  */
 package com.example.postgretest.model;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  *
  * @author labtime
  */
-public class NormaUI {
+public class NormaUI implements Comparable<NormaUI>{
     public long normaId;
     public String nome;
     public String descricao;
@@ -30,6 +29,19 @@ public class NormaUI {
         //this.deletionUser = deletionUser;
         this.url = url;
         this.isActive = isActive;
+    }
+
+    public int compareTo(NormaUI norma){
+        long id1 = this.normaId;
+        long id2 = norma.getNormaId();
+
+        if(id1 > id2){
+            return 1;
+        }else if(id1 < id2){
+            return -1;
+        }else{
+            return 0;
+        }
     }
 
     public NormaUI() {
