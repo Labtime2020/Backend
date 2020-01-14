@@ -99,7 +99,7 @@ public class NormaController {
     
     @PostMapping(path="/updateNorma")
     public @ResponseBody Resposta updateNorma( Authentication auth,
-            @RequestParam("file") MultipartFile file ,
+            @RequestParam(name="file", required=false) MultipartFile file ,
             @RequestParam("norma") String n1 ) throws JsonProcessingException{
         
         ObjectMapper obj = new ObjectMapper();
@@ -110,14 +110,19 @@ public class NormaController {
             return new Resposta(NORMA_INEXISTENTE, ME_C_0);
         }
         
-        else if( ( norma.getUrl() == null && file == null ) || ( norma.getUrl() == null && file.isEmpty() == true ) )
+        else if( (normaChk.get().getArquivo() == null) && 
+                 ((norma.getUrl() == null && file == null )|| ( norma.getUrl() == null && file.isEmpty() == true )) )
             return new Resposta(ERRO,ME17);
         
         else{
             Norma normaAntiga = normaChk.get();//salvo a norma antiga para enviar email com alteracoes
+            String tmpPath = normaAntiga.getArquivo();
+            
             try{
-                if(!normaRepository.findByNome(norma.getNome()).isEmpty() &&
-                    normaRepository.findById(norma.getNome()).get().getNormaId() != norma.getNormaId()
+                Optional<Norma> norma1 = normaRepository.findByNome(norma.getNome());
+                
+                if(!norma1.isEmpty() &&
+                    norma1.get().getNormaId() != norma.getNormaId()
                   )/*se ja existe uma norma com o nome fornecido e essa norma tem um id diferente da norma atual, aborte*/
                 {
                     System.out.println(ME15 + ". Abortando...");
@@ -147,13 +152,19 @@ public class NormaController {
                             javaMailSender.sendEmailComModificacoes(iterator, msg);
                         }
                     }
-                    normaRepository.save(normaObject);
-                    
                     try{
-                        storageService.remover(normaAntiga.getNormaName_File());
+                        System.out.println(normaAntiga.getNormaName_File());
+                        
+                        
+                        storageService.remover(tmpPath);
+                        storageService.salvar(file, normaObject.getArquivo());
+                        
                     }catch(Exception e){
                         System.out.println("Deu ruim");
                     }
+                    normaRepository.save(normaObject);
+                    
+                    
                 }
                 
             }catch(Exception e){
@@ -190,8 +201,6 @@ public class NormaController {
         catch(Exception e){
             e.printStackTrace();
         }
-    
-       
         return new Resposta(OK,MS01);
     }
 }

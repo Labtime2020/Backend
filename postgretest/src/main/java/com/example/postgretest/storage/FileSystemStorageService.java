@@ -49,12 +49,14 @@ public class FileSystemStorageService implements StorageService {
 		}
 	}
         public void remover(String filename){
-            try{
-                File arq = new File(this.rootLocation + filename);
-                arq.delete();
-            }catch(Exception e){
-                System.out.println("Nao foi possivel remover o arquivo:"+this.rootLocation.toString()+filename+"\n\n");
-            }
+        
+                File arq = new File(this.rootLocation + "/" + filename);
+                
+                if(arq.delete())
+                    System.out.println("Remocao ok!");
+                else
+                    System.out.println("Falha ao remover");
+            
         }
 
 	public String getExtensao(String filename){
