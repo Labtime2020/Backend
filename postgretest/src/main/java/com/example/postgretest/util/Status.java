@@ -12,7 +12,7 @@ public final class Status{
         public static final int USERJAEXISTE = 8; //usuario ja existe no sistema
         public static final int BLOQUEADO = 9;
         public static final int NORMAJAEXISTE = 10;//norma ja consta no sistema
-        public static final int URLNULO = 11;
+        public static final int CAMPOSNULOS = 11;
         public static final int NORMA_INEXISTENTE = 12;
         public static final int MESMASENHA = 13;
         public static final String ME_C_0 = "Norma inexistente";

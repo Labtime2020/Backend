@@ -21,13 +21,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.service.EmailSenderService;
+import com.example.postgretest.storage.FileSystemStorageService;
 import static com.example.postgretest.util.Status.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 /**
  *
  * @author labtime
@@ -44,15 +48,30 @@ public class NormaController {
     private List<Usuario> userChk;
     private Norma normaObject;
     
+    private final FileSystemStorageService storageService;
+   
+    @Autowired
+    public NormaController(FileSystemStorageService storageService){
+        this.storageService = storageService;
+    }
+    
     @PostMapping(path="/addNorma")
-    public @ResponseBody Resposta addNorma( Authentication auth, @RequestBody NormaUI norma ){
+    public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
+            @RequestParam("norma") String n1 ) throws JsonProcessingException{
        /*com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores*/
+        ObjectMapper obj = new ObjectMapper();
+        
+        NormaUI norma = obj.readValue(n1, NormaUI.class);
+        //mapeamento feito com sucesso!
+    
         normaChk = normaRepository.findByNome(norma.getNome());
         
         if( !normaChk.isEmpty() )
             return new Resposta(NORMAJAEXISTE, ME15);
-        else if( norma.getUrl() == null )
-            return new Resposta(URLNULO,ME17);
+        
+        else if( ( norma.getUrl() == null && file == null ) || ( norma.getUrl() == null && file.isEmpty() == true ) )
+            return new Resposta(ERRO,ME17);
+        
         else{
             //extraindo id pelo token*/
             userChk = userRepository.findByEmail(auth.getName());
@@ -62,23 +81,38 @@ public class NormaController {
             
             else{
                 Norma normaObject = new Norma(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getUrl(), new Date(), null, userChk.get(0), userChk.get(0), true);
+                if(file != null && file.isEmpty() == false){
+                   normaObject.setArquivo(normaObject.getNormaName_File() + "." +
+                    storageService.getExtensao(file.getOriginalFilename()));
+                }
                 normaRepository.save(normaObject);
+                try{
+                    storageService.salvar(file, normaObject.getArquivo());
+                }catch(Exception e){
+                    e.printStackTrace();
+                    System.out.println("Falha ao salvar arquivo");
+                }
                 return new Resposta(OK, "Norma cadastrada com sucesso");
             }
         }
     }
     
     @PostMapping(path="/updateNorma")
-    public @ResponseBody Resposta updateNorma( Authentication auth, @RequestBody NormaUI norma ){
+    public @ResponseBody Resposta updateNorma( Authentication auth,
+            @RequestParam("file") MultipartFile file ,
+            @RequestParam("norma") String n1 ) throws JsonProcessingException{
+        
+        ObjectMapper obj = new ObjectMapper();
+        NormaUI norma = obj.readValue(n1, NormaUI.class);
         
         normaChk = normaRepository.findByNormaId(norma.getNormaId());
         if( normaChk.isEmpty() ){
             return new Resposta(NORMA_INEXISTENTE, ME_C_0);
         }
         
-        else if(norma.getUrl() == null ){
-            return new Resposta(URLNULO, ME17);
-        }
+        else if( ( norma.getUrl() == null && file == null ) || ( norma.getUrl() == null && file.isEmpty() == true ) )
+            return new Resposta(ERRO,ME17);
+        
         else{
             Norma normaAntiga = normaChk.get();//salvo a norma antiga para enviar email com alteracoes
             try{
@@ -94,8 +128,12 @@ public class NormaController {
                     normaObject.setNome(norma.getNome());
                     normaObject.setUrl(norma.getUrl());
                     normaObject.setDescricao(norma.getDescricao());
-                    /*devemos enviar e-mail para os usuarios*/
-
+                    if( file != null && file.isEmpty() == false ){
+                        normaObject.setArquivo(normaObject.getNormaName_File() + "." +
+                                               storageService.getExtensao(file.getOriginalFilename())
+                        );
+                    }
+                    
                     if(normaObject.getUsuarios().isEmpty() == false){
                         Usuario iterator;
                         String msg;
@@ -103,11 +141,19 @@ public class NormaController {
                         for( int i = 0; i < normaObject.getUsuarios().size(); i++ ){
                             iterator = normaObject.getUsuarios().get(i);
 
-                            msg = "Nome antigo: " + normaAntiga.getNome() + "Nome novo: " + norma.getNome();
+                            msg = "Nome antigo: " + normaAntiga.getNome() 
+                                  + "Nome novo: " + norma.getNome()
+                                  + "\\r\\nEntre para ver as modificacoes.";
                             javaMailSender.sendEmailComModificacoes(iterator, msg);
                         }
                     }
                     normaRepository.save(normaObject);
+                    
+                    try{
+                        storageService.remover(normaAntiga.getNormaName_File());
+                    }catch(Exception e){
+                        System.out.println("Deu ruim");
+                    }
                 }
                 
             }catch(Exception e){

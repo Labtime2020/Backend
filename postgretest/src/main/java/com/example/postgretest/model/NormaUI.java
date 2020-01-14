@@ -28,6 +28,10 @@ public class NormaUI {
         this.isActive = isActive;
     }
 
+    public NormaUI() {
+    }
+    
+
     public long getNormaId() {
         return normaId;
     }
