@@ -1,5 +1,6 @@
 package com.example.postgretest.storage;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -47,6 +48,14 @@ public class FileSystemStorageService implements StorageService {
 			throw new StorageException("Failed to store file " + filename, e);
 		}
 	}
+        public void remover(String filename){
+            try{
+                File arq = new File(this.rootLocation + filename);
+                arq.delete();
+            }catch(Exception e){
+                System.out.println("Nao foi possivel remover o arquivo:"+this.rootLocation.toString()+filename+"\n\n");
+            }
+        }
 
 	public String getExtensao(String filename){
 		int pos = filename.lastIndexOf(".");
