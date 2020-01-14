@@ -43,7 +43,7 @@ public class Tag {
     @ManyToMany(mappedBy="tags")
     private List<Norma> normas = new ArrayList<Norma>();
 
-    public List<Norma> getUsuarios(){
+    public List<Norma> getNormas(){
     	return this.normas;
     }
     
@@ -54,5 +54,9 @@ public class Tag {
 
     public Tag(){
 
+    }
+
+    public String getNome(){
+        return this.nome;
     }
 }

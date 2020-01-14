@@ -5,6 +5,9 @@
  */
 package com.example.postgretest.model;
 
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  *
  * @author labtime
@@ -17,6 +20,7 @@ public class NormaUI {
     //public long deletionUser;//id do usuario que removeu a norma
     public String url;
     public boolean isActive;
+    public List< String > tags = new ArrayList<>();
 
     public NormaUI(long normaId, String nome, String descricao, String url, boolean isActive) {
         this.normaId = normaId;

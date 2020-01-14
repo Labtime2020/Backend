@@ -4,13 +4,17 @@
  * and open the template in the editor.
  */
 package com.example.postgretest.Controller;
+
 import com.example.postgretest.model.Norma;
 import com.example.postgretest.model.Usuario;
 import com.example.postgretest.model.UsuarioUI;
 import com.example.postgretest.model.NormaUI;
+import com.example.postgretest.model.Tag;
 import com.example.postgretest.repository.NormaRepository;
 import com.example.postgretest.repository.UserRepository;
+import com.example.postgretest.repository.TagRepository;
 import com.example.postgretest.util.Status;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,25 +23,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.service.EmailSenderService;
 import com.example.postgretest.storage.FileSystemStorageService;
+
 import static com.example.postgretest.util.Status.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
-/**
- *
- * @author labtime
- */
+
 @RestController
 public class NormaController {
+    @Autowired
+    TagRepository tagRepository;
     @Autowired
     NormaRepository normaRepository;
     @Autowired
@@ -54,7 +63,25 @@ public class NormaController {
     public NormaController(FileSystemStorageService storageService){
         this.storageService = storageService;
     }
-    
+
+    @GetMapping("/buscarnormas")
+    public List<NormaUI> buscarnormas(){
+        List<Norma> norms = normaRepository.findAll();
+        List<NormaUI> normas = new ArrayList<>();
+
+        for(Norma norma: norms){
+            NormaUI norm = new NormaUI(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getUrl(), norma.isIsActive());
+
+            for(Tag tag: norma.getTags()){
+                norm.tags.add(tag.getNome());
+            }
+
+            normas.add(norm);
+        }
+
+        return normas;
+    }
+
     @PostMapping(path="/addNorma")
     public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
             @RequestParam("norma") String n1 ) throws JsonProcessingException{
@@ -71,7 +98,6 @@ public class NormaController {
         
         else if( ( norma.getUrl() == null && file == null ) || ( norma.getUrl() == null && file.isEmpty() == true ) )
             return new Resposta(ERRO,ME17);
-        
         else{
             //extraindo id pelo token*/
             userChk = userRepository.findByEmail(auth.getName());
@@ -80,18 +106,37 @@ public class NormaController {
                 return new Resposta(SEMUSER, "Nenhum usuario com este ID");
             
             else{
-                Norma normaObject = new Norma(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getUrl(), new Date(), null, userChk.get(0), userChk.get(0), true);
+                Norma normaObject = new Norma(norma.getNormaId(), norma.getNome(), 
+                    norma.getDescricao(), norma.getUrl(), new Date(), null, userChk.get(0), userChk.get(0), true);
+
+                for(String tag: norma.tags){
+                    Optional<Tag> test = tagRepository.findByNome(tag);
+                    Tag tg;
+
+                    if(test.isEmpty()){
+                        tagRepository.save(new Tag(0, tag));
+                        tg = tagRepository.findByNome(tag).get();
+                    }else{
+                        tg = test.get();
+                    }
+
+                    normaObject.getTags().add(tg);
+                }
+
                 if(file != null && file.isEmpty() == false){
                    normaObject.setArquivo(normaObject.getNormaName_File() + "." +
                     storageService.getExtensao(file.getOriginalFilename()));
                 }
+
                 normaRepository.save(normaObject);
+                
                 try{
                     storageService.salvar(file, normaObject.getArquivo());
                 }catch(Exception e){
                     e.printStackTrace();
                     System.out.println("Falha ao salvar arquivo");
                 }
+
                 return new Resposta(OK, "Norma cadastrada com sucesso");
             }
         }
@@ -102,6 +147,8 @@ public class NormaController {
             @RequestParam(name="file", required=false) MultipartFile file ,
             @RequestParam("norma") String n1 ) throws JsonProcessingException{
         
+        System.out.println("atualizando norma");
+        
         ObjectMapper obj = new ObjectMapper();
         NormaUI norma = obj.readValue(n1, NormaUI.class);
         
@@ -109,7 +156,6 @@ public class NormaController {
         if( normaChk.isEmpty() ){
             return new Resposta(NORMA_INEXISTENTE, ME_C_0);
         }
-        
         else if( (normaChk.get().getArquivo() == null) && 
                  ((norma.getUrl() == null && file == null )|| ( norma.getUrl() == null && file.isEmpty() == true )) )
             return new Resposta(ERRO,ME17);
@@ -120,7 +166,7 @@ public class NormaController {
             
             try{
                 Optional<Norma> norma1 = normaRepository.findByNome(norma.getNome());
-                
+
                 if(!norma1.isEmpty() &&
                     norma1.get().getNormaId() != norma.getNormaId()
                   )/*se ja existe uma norma com o nome fornecido e essa norma tem um id diferente da norma atual, aborte*/
@@ -133,6 +179,25 @@ public class NormaController {
                     normaObject.setNome(norma.getNome());
                     normaObject.setUrl(norma.getUrl());
                     normaObject.setDescricao(norma.getDescricao());
+
+                    normaObject.getTags().clear();
+
+                    for(String tag: norma.tags){
+                        Optional<Tag> test = tagRepository.findByNome(tag);
+                        Tag tg;
+
+                        if(test.isEmpty()){
+                            tagRepository.save(new Tag(0, tag));
+                            tg = tagRepository.findByNome(tag).get();
+                        }else{
+                            tg = test.get();
+                        }
+
+                        normaObject.getTags().add(tg);
+                    }
+
+                    System.out.println(normaObject.getTags().size() + " Eh o numero de tags!!!!!!!");
+
                     if( file != null && file.isEmpty() == false ){
                         normaObject.setArquivo(normaObject.getNormaName_File() + "." +
                                                storageService.getExtensao(file.getOriginalFilename())
@@ -152,6 +217,9 @@ public class NormaController {
                             javaMailSender.sendEmailComModificacoes(iterator, msg);
                         }
                     }
+
+                    normaRepository.save(normaObject);
+
                     try{
                         System.out.println(normaAntiga.getNormaName_File());
                         
@@ -162,9 +230,6 @@ public class NormaController {
                     }catch(Exception e){
                         System.out.println("Deu ruim");
                     }
-                    normaRepository.save(normaObject);
-                    
-                    
                 }
                 
             }catch(Exception e){

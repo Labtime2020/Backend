@@ -9,16 +9,16 @@ package com.example.postgretest.repository;
  *
  * @author labtime
  */
-import com.example.postgretest.model.Usuario;
+import com.example.postgretest.model.Tag;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public interface UserRepository extends CrudRepository<Usuario, Long> {
-	List<Usuario> findByEmail(String email);
-        
-	List<Usuario> findAll();
-	List<Usuario> findByIsAdmin(boolean isAdmin);
+public interface TagRepository extends CrudRepository<Tag, Long> {    
+	List<Tag> findAll();
+	Optional<Tag> findByNome(String nome);
 }
