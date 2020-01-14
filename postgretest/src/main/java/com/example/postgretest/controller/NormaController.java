@@ -22,12 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.service.EmailSenderService;
 import static com.example.postgretest.util.Status.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 /**
  *
  * @author labtime
@@ -45,14 +48,22 @@ public class NormaController {
     private Norma normaObject;
     
     @PostMapping(path="/addNorma")
-    public @ResponseBody Resposta addNorma( Authentication auth, @RequestBody NormaUI norma ){
+    public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam("file") MultipartFile file,
+            @RequestParam("norma") String n1 ) throws JsonProcessingException{
        /*com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores*/
+        ObjectMapper obj = new ObjectMapper();
+        
+        NormaUI norma = obj.readValue(n1, NormaUI.class);
+        //mapeamento feito com sucesso!
+        
         normaChk = normaRepository.findByNome(norma.getNome());
         
         if( !normaChk.isEmpty() )
             return new Resposta(NORMAJAEXISTE, ME15);
-        else if( norma.getUrl() == null )
-            return new Resposta(URLNULO,ME17);
+        
+        else if( norma.getUrl() == null && file.isEmpty() == true )
+            return new Resposta(CAMPOSNULOS,ME17);
+        
         else{
             //extraindo id pelo token*/
             userChk = userRepository.findByEmail(auth.getName());
@@ -62,6 +73,9 @@ public class NormaController {
             
             else{
                 Norma normaObject = new Norma(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getUrl(), new Date(), null, userChk.get(0), userChk.get(0), true);
+                if(file.isEmpty() == false){
+                    
+                }
                 normaRepository.save(normaObject);
                 return new Resposta(OK, "Norma cadastrada com sucesso");
             }
@@ -76,8 +90,8 @@ public class NormaController {
             return new Resposta(NORMA_INEXISTENTE, ME_C_0);
         }
         
-        else if(norma.getUrl() == null ){
-            return new Resposta(URLNULO, ME17);
+        else if(norma.getUrl() == null){
+            return new Resposta(CAMPOSNULOS, ME17);
         }
         else{
             Norma normaAntiga = normaChk.get();//salvo a norma antiga para enviar email com alteracoes
