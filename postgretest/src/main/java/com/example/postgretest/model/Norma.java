@@ -113,6 +113,15 @@ public class Norma {
     public Usuario getDeletionUser() {
         return deletionUser;
     }
+    public String getNormaName_File(){
+        int i = 0;
+        if( this.nome.contains(" ") == true ){
+            i = this.nome.indexOf(" ");
+            return "norma_" + this.nome.substring(0, i-1);
+        }
+        else
+            return "norma_" + this.nome;
+    }
 
     public boolean isIsActive() {
         return this.isActive;
@@ -121,7 +130,7 @@ public class Norma {
     public String getArquivo() {
         return arquivo;
     }
-    
+
     public void setNormaId(long normaId) {
         this.normaId = normaId;
     }
@@ -153,15 +162,15 @@ public class Norma {
     public void setDeletionUser(Usuario deletionUser) {
         this.deletionUser = deletionUser;
     }
-
+    
+    public void setArquivo(String arquivo) {
+        this.arquivo = arquivo;
+    }    
+    
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
 
-    public void setArquivo(String arquivo) {
-        this.arquivo = arquivo;
-    }
-    
     
     
 }
