@@ -231,7 +231,8 @@ public class NormaController {
                 }
                 else{
                     normaObject = normaRepository.findByNormaId(norma.getNormaId()).get();
-                    normaObject.setNome(norma.getNome());
+                    if( norma.getNome() != null)
+                        normaObject.setNome(norma.getNome());
                     normaObject.setUrl(norma.getUrl());
                     normaObject.setDescricao(norma.getDescricao());
 
