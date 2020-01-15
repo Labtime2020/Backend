@@ -1,4 +1,5 @@
 upload-dir/
+*.properties
 HELP.md
 .gradle
 build/
