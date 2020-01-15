@@ -24,6 +24,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/buscarusuarios").permitAll()
                         .antMatchers("/addUserAsAdmin").permitAll()
                         .antMatchers("/removeUserAsAdmin").permitAll()
+                        .antMatchers("/updateUserStatus").permitAll()
                         .antMatchers("/alterarsenha/*").permitAll()
                         .antMatchers("/addNorma").permitAll()
                         .antMatchers("/incrementar_erro/*").permitAll()
