@@ -54,6 +54,7 @@ import java.util.Date;
 import java.time.LocalDate;
 
 import static com.example.postgretest.util.Status.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 /**
  *
  * @author labtime
@@ -70,6 +71,14 @@ public class UserController {
     @Autowired
     public UserController(FileSystemStorageService storageService){
         this.storageService = storageService;
+    }
+    
+    private boolean isAdmin( Authentication auth ) throws Exception{
+        List<Usuario> users = userRepository.findByEmail(ME01);
+        if( users.isEmpty() )
+            throw new Exception("Nao existe usuario com este id");
+        else
+            return (users.get(0).getIsAdmin() == true) ? true : false;
     }
 
     // @PostMapping(path="/addUser")
@@ -130,7 +139,14 @@ public class UserController {
     }
 
     @PostMapping(path="/addUserAsAdmin")
-    public @ResponseBody Resposta addAdmin(@RequestBody UsuarioUI user ){
+    public @ResponseBody Resposta addAdmin(Authentication auth, @RequestBody UsuarioUI user ){
+        try{/*Checagem de seguranca, somente usuarios administradores podem adicionar outros users como admin*/
+            if(isAdmin(auth) == false)
+                return new Resposta(ERRO,ME_C_1);
+        }
+        catch(Exception e){
+            e.getMessage();
+        }
         
         List<Usuario> c = userRepository.findByEmail(user.getEmail());
         
@@ -148,7 +164,15 @@ public class UserController {
     }
 
     @PostMapping(path="/removeUserAsAdmin")
-    public @ResponseBody Resposta removeAdmin(@RequestBody UsuarioUI user){
+    public @ResponseBody Resposta removeAdmin(Authentication auth, @RequestBody UsuarioUI user){
+        try{/*Checagem de seguranca, somente usuarios administradores podem adicionar outros users como admin*/
+            if(isAdmin(auth) == false)
+                return new Resposta(ERRO,ME_C_1);
+        }
+        catch(Exception e){
+            e.getMessage();
+        }
+        
         b = userRepository.findById(user.id);
         
         try{
@@ -166,5 +190,41 @@ public class UserController {
         userRepository.save(a);
         
         return new Resposta(OK, "Usuario nao eh mais administrador");
-    }  
+    }
+    @PostMapping(path="/updateUserStatus")
+    public @ResponseBody Resposta updateUserStatus(Authentication auth, @RequestBody UsuarioUI user){
+        
+        if( user.getEmail() == null || user.getStatus() > 1 || user.getStatus() < 0 ){
+                return new Resposta(ERRO, JSONINVALIDO);
+        }
+        List<Usuario> userChk = userRepository.findByEmail(user.getEmail());
+        if( userChk.isEmpty() ){
+            return new Resposta(SEMUSER, ME_C_2);
+        }
+        else{
+            
+            Usuario usuario = userChk.get(0);
+            if( user.getStatus() == 0 ){
+                if( auth.getName() == user.getEmail() ){//usuario esta querendo se auto desativar
+                    return new Resposta(ERRO, ME22);
+                }
+                else if( userRepository.findByIsAdmin(true).size() == 1
+                        && usuario.getIsAdmin() == true ){
+                    return new Resposta(UNADMIN, ME05);
+                }
+                else if( usuario.getIsAdmin() == true ){
+                    usuario.setIsAdmin(false);
+                    usuario.setAdminEndDate(new Date());
+                }
+                else
+                    usuario.setStatus(0);
+            }
+            else{/*ativar usuario*/
+                usuario.setStatus(1);
+            }
+            userRepository.save(usuario);
+            
+            return new Resposta(OK, MS01);
+        }
+    }
 }
