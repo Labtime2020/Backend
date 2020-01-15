@@ -113,11 +113,28 @@ public class NormaController {
         Optional<Norma> n1 = normaRepository.findByNormaId(norma.getNormaId());
         if( n1.isEmpty() == false ){
             Resource file = storageService.loadAsResource(n1.get().getArquivo());
+            Norma n2 = n1.get();
+            n2.setDownload(n2.getDownload()+1);
+            normaRepository.save(n2);
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=\"" + file.getFilename() + "\"").body(file);
         }
         else
             return null;
+    }
+    @PostMapping(path="/visualizarNorma")
+    public @ResponseBody String visualizarNorma(@RequestBody NormaUI norma){
+        Optional<Norma> nrm = normaRepository.findByNome(norma.getNome());
+        if( nrm.isEmpty() == true){
+            System.out.println("Norma nula");
+            return null;
+        }
+        else{
+            Norma n0 = nrm.get();
+            n0.setVisualizacao(n0.getVisualizacao()+1);
+            normaRepository.save(n0);
+            return norma.getUrl();
+        }
     }
 
     @PostMapping(path="/addNorma")
@@ -145,7 +162,7 @@ public class NormaController {
             
             else{
                 Norma normaObject = new Norma(norma.getNormaId(), norma.getNome(), 
-                    norma.getDescricao(), norma.getUrl(), new Date(), null, userChk.get(0), userChk.get(0), true);
+                    norma.getDescricao(), norma.getUrl(), new Date(), null, userChk.get(0), userChk.get(0), true, 0, 0);
 
                 for(String tag: norma.tags){
                     Optional<Tag> test = tagRepository.findByNome(tag);

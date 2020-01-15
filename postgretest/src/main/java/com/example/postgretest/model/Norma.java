@@ -59,6 +59,8 @@ public class Norma {
     @JoinColumn(name="deletionUser")
     private Usuario deletionUser;
     private boolean isActive;/*situacao da norma*/
+    private int download;
+    private int visualizacao;
 
     @ManyToMany(mappedBy="favoritos")
     private List<Usuario> usuarios = new ArrayList<Usuario>();
@@ -74,7 +76,7 @@ public class Norma {
     }
     
     public Norma(long normaId, String nome, String descricao, String url, Date registerDate, Date deletionDate, 
-    	Usuario creationUser, Usuario deletionUser, boolean isActive) {
+    	Usuario creationUser, Usuario deletionUser, boolean isActive, int download, int visualizacao) {
         this.normaId = normaId;
         this.nome = nome;
         this.descricao = descricao;
@@ -84,6 +86,8 @@ public class Norma {
         this.creationUser = creationUser;
         this.deletionUser = deletionUser;
         this.isActive = isActive;
+        this.download = download;
+        this.visualizacao = visualizacao;
     }
     
     public Norma(){
@@ -99,6 +103,15 @@ public class Norma {
 
         return norm;
     }
+
+    public int getDownload() {
+        return download;
+    }
+
+    public int getVisualizacao() {
+        return visualizacao;
+    }
+    
 
     public List<Tag> getTags(){
         return this.tags;
@@ -191,6 +204,14 @@ public class Norma {
     
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public void setDownload(int download) {
+        this.download = download;
+    }
+
+    public void setVisualizacao(int visualizacao) {
+        this.visualizacao = visualizacao;
     }
 
     
