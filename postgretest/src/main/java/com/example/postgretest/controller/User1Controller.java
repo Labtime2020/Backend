@@ -82,6 +82,20 @@ public class User1Controller {
         this.storageService = storageService;
     }
 
+    @PostMapping("/buscarusuarioporemail")
+    public List<UsuarioUI> buscarusuarioporemail(@RequestBody String email){        
+        List<Usuario> users = userRepository.findByEmailContaining(email);
+
+        System.out.println(users.size());
+        List<UsuarioUI> list = new ArrayList<>();
+
+        for(Usuario user: users){
+            list.add(user.toUsuarioUI());
+        }
+
+        return list;
+    }
+
     @PostMapping("/obteravatarusuario")
     @ResponseBody
     public ResponseEntity<Resource> obter_avatar_usuario(@RequestBody UsuarioUI usuario) {
@@ -119,7 +133,7 @@ public class User1Controller {
     	}else{
     		Usuario nuser = new Usuario(123, usuario.nome, usuario.email, usuario.sobrenome, usuario.password, usuario.isAdmin, ATIVO);
 
-    		List<Usuario> test = userRepository.findAll();
+    		List<Usuario> test = userRepository.findAllByOrderByNome();
 	
 			if(test.size() == 0){
 				nuser.setIsAdmin(true);
@@ -144,7 +158,7 @@ public class User1Controller {
                 return new Resposta(ERRO, "Falha ao salvar avatar");
             }
 
-    		return new Resposta(OK, MS01 + "Usuario criado com sucesso");
+    		return new Resposta(OK, MS01);
     	}
     }
 
@@ -199,12 +213,11 @@ public class User1Controller {
     public List<UsuarioUI> buscarusuarios(){
     	System.out.println("Buscando todos os usuarios");
 
-    	List<Usuario> users = userRepository.findAll();
+    	List<Usuario> users = userRepository.findAllByOrderByNome();
     	List<UsuarioUI> usuarios = new ArrayList<>();
 
     	for(Usuario user: users){
-    		usuarios.add(new UsuarioUI(user.getId(), user.getEmail(), user.getNome(), user.getSobrenome(),
-    			user.getIsAdmin(), user.getPassword(), user.getStatus()));
+    		usuarios.add(user.toUsuarioUI());
     	}
 
     	return usuarios;

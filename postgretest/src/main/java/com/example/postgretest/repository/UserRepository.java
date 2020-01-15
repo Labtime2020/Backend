@@ -9,16 +9,20 @@ package com.example.postgretest.repository;
  *
  * @author labtime
  */
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import com.example.postgretest.model.Usuario;
 import java.util.List;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends CrudRepository<Usuario, Long> {
+public interface UserRepository extends JpaRepository<Usuario, Long> {
 	List<Usuario> findByEmail(String email);
         
-	List<Usuario> findAll();
+	List<Usuario> findAllByOrderByNome();
 	List<Usuario> findByIsAdmin(boolean isAdmin);
+
+	List<Usuario> findByEmailContaining(String email);
 }

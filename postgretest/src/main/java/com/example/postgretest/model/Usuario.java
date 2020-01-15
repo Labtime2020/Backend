@@ -91,6 +91,11 @@ public class Usuario implements Serializable{
         this.tentativaErrada = 0;
     }
     
+    public UsuarioUI toUsuarioUI(){
+        return new UsuarioUI(this.getId(), this.getEmail(), this.getNome(), this.getSobrenome(),
+                this.getIsAdmin(), this.getPassword(), this.getStatus());
+    }   
+
     public void setAvatar(String avatar){
         this.avatar = avatar;
     }
