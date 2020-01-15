@@ -1,5 +1,5 @@
 upload-dir/
-src/main/resources/application.properties
+*.properties
 HELP.md
 .gradle
 build/
