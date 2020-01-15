@@ -1,6 +1,7 @@
 package com.example.postgretest.util;
 
 public final class Status{
+        public static final int JSONINCORRETO = -1;
 	public static final int OK = 0;
 	public static final int ERRO = 1;
 	public static final int UNADMIN = 2;//administrador unico
@@ -15,9 +16,14 @@ public final class Status{
         public static final int CAMPOSNULOS = 11;
         public static final int NORMA_INEXISTENTE = 12;
         public static final int MESMASENHA = 13;
+        public static final int NOTADMIN = 14;
+        public static final String JSONINVALIDO = "Campos obrigatorios JSON nulos!!!";
         public static final String ME_C_0 = "Norma inexistente";
+        public static final String ME_C_1 = "Usuario nao e admin!";
+        public static final String ME_C_2 = "Uusario inexistente";
         public static final String ME01 = "Erro";
         public static final String ME04_2 = "Email ja foi cadastrado por outro usuario";
+        public static final String ME05 = "Unico administrador do sistema";
 	public static final String ME09 = "Usuario ou senha incorretos";
 	public static final String ME10_2 = "Usuario bloqueado";
 	public static final String ME10_1 = "Senha incorreta, usuario bloqueado, instrucoes para desbloqueio enviado no email informado";
@@ -28,6 +34,7 @@ public final class Status{
         public static final String ME15 = "Norma ja cadastrada";
         public static final String ME17 = "Url nulo";
         public static final String ME19 = "A senha fornecida eh a mesma da atual";
+        public static final String ME22 = "Nao e possivel inativar o proprio usuario";
         public static final String MS01 = "Operacao realizada com sucesso";
 	public static final String DIVISOR = "&&&^^^^^()()()()";
 	public static final String API_ADDRESS = "http://192.168.1.227:9090";
