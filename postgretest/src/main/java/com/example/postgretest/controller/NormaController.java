@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Optional;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -104,6 +107,17 @@ public class NormaController {
         }
 
         return normas;
+    }
+    @PostMapping(path="/obterArquivoNorma")
+    public ResponseEntity<Resource> obterArquivoNorma(@RequestBody NormaUI norma){
+        Optional<Norma> n1 = normaRepository.findByNormaId(norma.getNormaId());
+        if( n1.isEmpty() == false ){
+            Resource file = storageService.loadAsResource(n1.get().getArquivo());
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        }
+        else
+            return null;
     }
 
     @PostMapping(path="/addNorma")
