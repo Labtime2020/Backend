@@ -64,14 +64,27 @@ public class NormaController {
     private Norma normaObject;
     
     private final FileSystemStorageService storageService;
-   
+    
+    private void AtualizarEntrada(Authentication auth){
+        if(auth != null){
+            System.out.println(auth.getName() + " entrou!");
+            
+            Usuario user = userRepository.findByEmail(auth.getName()).get(0);
+            user.atualizarEntrada();
+
+            userRepository.save(user);
+        }
+    }
+
     @Autowired
     public NormaController(FileSystemStorageService storageService){
         this.storageService = storageService;
     }
 
     @GetMapping("/buscartags")
-    public TagUI buscartags(){
+    public TagUI buscartags(Authentication auth){
+        AtualizarEntrada(auth);
+
         TagUI tags = new TagUI();
         List<Tag> mtags = tagRepository.findAll();
 
@@ -83,7 +96,9 @@ public class NormaController {
     }
 
     @PostMapping("/filtrarnormas")
-    public Set<NormaUI> filtrarnormas(@RequestBody TagUI tags){
+    public Set<NormaUI> filtrarnormas(Authentication auth, @RequestBody TagUI tags){
+        AtualizarEntrada(auth);
+
         Set<NormaUI> normas = new TreeSet<>();
 
         for(String tag: tags.tags){
@@ -98,7 +113,9 @@ public class NormaController {
     }
 
     @GetMapping("/buscarnormas")
-    public List<NormaUI> buscarnormas(){
+    public List<NormaUI> buscarnormas(Authentication auth){
+        AtualizarEntrada(auth);
+
         List<Norma> norms = normaRepository.findAll();
         List<NormaUI> normas = new ArrayList<>();
 
@@ -108,8 +125,11 @@ public class NormaController {
 
         return normas;
     }
+
     @PostMapping(path="/obterArquivoNorma")
-    public ResponseEntity<Resource> obterArquivoNorma(@RequestBody NormaUI norma){
+    public ResponseEntity<Resource> obterArquivoNorma(Authentication auth, @RequestBody NormaUI norma){
+        AtualizarEntrada(auth);
+
         Optional<Norma> n1 = normaRepository.findByNormaId(norma.getNormaId());
         if( n1.isEmpty() == false ){
             Resource file = storageService.loadAsResource(n1.get().getArquivo());
@@ -122,8 +142,11 @@ public class NormaController {
         else
             return null;
     }
+
     @PostMapping(path="/visualizarNorma")
-    public @ResponseBody String visualizarNorma(@RequestBody NormaUI norma){
+    public @ResponseBody String visualizarNorma(Authentication auth, @RequestBody NormaUI norma){
+        AtualizarEntrada(auth);
+
         Optional<Norma> nrm = normaRepository.findByNome(norma.getNome());
         if( nrm.isEmpty() == true){
             System.out.println("Norma nula");
@@ -140,6 +163,8 @@ public class NormaController {
     @PostMapping(path="/addNorma")
     public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
             @RequestParam("norma") String n1 ) throws JsonProcessingException{
+        AtualizarEntrada(auth);
+
        /*com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores*/
         ObjectMapper obj = new ObjectMapper();
         
@@ -201,8 +226,7 @@ public class NormaController {
     public @ResponseBody Resposta updateNorma( Authentication auth,
             @RequestParam(name="file", required=false) MultipartFile file ,
             @RequestParam("norma") String n1 ) throws JsonProcessingException{
-        
-        System.out.println("atualizando norma");
+        AtualizarEntrada(auth);
 
         ObjectMapper obj = new ObjectMapper();
         NormaUI norma = obj.readValue(n1, NormaUI.class);
@@ -297,6 +321,8 @@ public class NormaController {
     
     @PostMapping(path="/updateNormaStatus")
     public @ResponseBody Resposta updateStatus( Authentication auth, @RequestBody NormaUI norma){
+        AtualizarEntrada(auth);
+
         Optional<Norma> n = normaRepository.findByNormaId(norma.getNormaId());
         try{
             if( n.isEmpty() ){

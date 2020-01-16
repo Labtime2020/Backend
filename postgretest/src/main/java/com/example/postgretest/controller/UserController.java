@@ -74,11 +74,15 @@ public class UserController {
     }
     
     private boolean isAdmin( Authentication auth ) throws Exception{
-        List<Usuario> users = userRepository.findByEmail(ME01);
+        List<Usuario> users = userRepository.findByEmail(auth.getName());
         if( users.isEmpty() )
             throw new Exception("Nao existe usuario com este id");
-        else
+        else{
+            users.get(0).atualizarEntrada();
+            userRepository.save(users.get(0));
+
             return (users.get(0).getIsAdmin() == true) ? true : false;
+        }
     }
 
     // @PostMapping(path="/addUser")
@@ -102,6 +106,8 @@ public class UserController {
         
         if(usuarioLogado.isEmpty() == false){
             Usuario userAtual = usuarioLogado.get(0);
+            userAtual.atualizarEntrada();
+
             List<Usuario> outros = userRepository.findByEmail(user.getEmail());
             if(outros.isEmpty() == false && outros.get(0).getId() != userAtual.getId() ){
                 System.out.println("Update de email nao sera feito, pois ja existe usuario cadastrado!");
@@ -136,10 +142,16 @@ public class UserController {
     }
 
     @PostMapping(path="/updateUser")
-    public @ResponseBody Resposta updateData(@RequestParam("file") MultipartFile file, Authentication auth, @RequestParam("usuario") String usuarioString)
-    throws JsonProcessingException {
+    public @ResponseBody Resposta updateData(@RequestParam("file") MultipartFile file, 
+        Authentication auth, @RequestParam("usuario") String usuarioString)
+            throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         UsuarioUI user = mapper.readValue(usuarioString, UsuarioUI.class);
+
+        Usuario usuarioLogado = userRepository.findByEmail(auth.getName()).get(0);
+
+        usuarioLogado.atualizarEntrada();
+        userRepository.save(usuarioLogado);
 
         System.out.println(user.getEmail());
         
@@ -194,6 +206,11 @@ public class UserController {
         if( c.isEmpty() )
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
         
+        Usuario usuariolog = userRepository.findByEmail(auth.getName()).get(0);
+
+        usuariolog.atualizarEntrada();
+        userRepository.save(usuariolog);
+
         a = c.get(0);
         a.setIsAdmin(true);
         a.setAdminBeginDate(new Date());
@@ -201,7 +218,6 @@ public class UserController {
         userRepository.save(a);
       
         return new Resposta(OK, "Usuario agora eh um administrador!");
-        
     }
 
     @PostMapping(path="/removeUserAsAdmin")
@@ -225,13 +241,20 @@ public class UserController {
             return new Resposta(ERRO, "Falha de comportamento!");
         }
         
+        Usuario userlog = userRepository.findByEmail(auth.getName()).get(0);
+        
+        userlog.atualizarEntrada();
+        userRepository.save(userlog);
+
         a = userRepository.findByEmail(user.email).get(0);
         a.setIsAdmin(false);
         a.setAdminEndDate(new Date());
+        a.atualizarEntrada();
         userRepository.save(a);
         
         return new Resposta(OK, "Usuario nao eh mais administrador");
     }
+
     @PostMapping(path="/updateUserStatus")
     public @ResponseBody Resposta updateUserStatus(Authentication auth, @RequestBody UsuarioUI user){
         
@@ -243,7 +266,11 @@ public class UserController {
             return new Resposta(SEMUSER, ME_C_2);
         }
         else{
-            
+            Usuario usuariolog = userRepository.findByEmail(auth.getName()).get(0);
+
+            usuariolog.atualizarEntrada();
+            userRepository.save(usuariolog);
+
             Usuario usuario = userChk.get(0);
             if( user.getStatus() == 0 ){
                 if( auth.getName() == user.getEmail() ){//usuario esta querendo se auto desativar
