@@ -94,18 +94,49 @@ public class UserController {
     //         return new Resposta(USERJAEXISTE,"ME04_2 - Usuario com email " + user.getEmail() + " ja existe no sistema");
     // }
     
-    /*@PostMapping(path="/updateMyData")
-    public @ResponseBody Resposta updateMyData(Authentication auth, MultipartFile file, @RequestParam("usuario") String usuario) throws JsonProcessingException{
+    @PostMapping(path="/updateMyData")
+    public @ResponseBody Resposta updateMyData(Authentication auth, MultipartFile file, @RequestParam("usuario") String usuarioString) throws JsonProcessingException{
+        List<Usuario> usuarioLogado = userRepository.findByEmail(auth.getName());
+        ObjectMapper mapper = new ObjectMapper();
+        UsuarioUI user = mapper.readValue(usuarioString, UsuarioUI.class);
         
+        if(usuarioLogado.isEmpty() == false){
+            Usuario userAtual = usuarioLogado.get(0);
+            if(userRepository.findByEmail(user.getEmail()).isEmpty() == false){
+                System.out.println("Update de email nao sera feito, pois ja existe usuario cadastrado!");
+                return new Resposta(USERJAEXISTE, ME04_2);
+            }
+            else if( user.getPassword().equals(userAtual.getPassword())){
+                return new Resposta(ERRO, ME19);
+            }
+            else{
+                userAtual.setEmail(user.getEmail());
+                userAtual.setPassword(user.getPassword());
+                if( user.getNome()!=null && (!user.getNome().isBlank() || !user.getNome().isEmpty()) )
+                    userAtual.setNome(user.getNome());
+                if( user.getSobrenome() != null &&( !user.getSobrenome().isBlank() || !user.getSobrenome().isEmpty() ) )
+                    userAtual.setSobrenome(user.getSobrenome());
+                userAtual.setAvatar("avatar_" + user.email + "." 
+                        + storageService.getExtensao(file.getOriginalFilename()));
+            }
+            userRepository.save(userAtual);
+            try{
+                storageService.salvar(file, userAtual.getAvatar());
+            }catch(Exception ex){
+                return new Resposta(ERRO, "Falha ao salvar avatar");
+            }
+            
+            System.out.println(userAtual.getId());
+            return new Resposta(OK, "User information updated");
+        }
         
-        
-    }*/
+        return new Resposta(SEMUSER, "Nada a fazer com este usuario!");
+    }
 
     @PostMapping(path="/updateUser")
     public @ResponseBody Resposta updateData(@RequestParam("file") MultipartFile file, Authentication auth, @RequestParam("usuario") String usuarioString)
     throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-
         UsuarioUI user = mapper.readValue(usuarioString, UsuarioUI.class);
 
         System.out.println(user.getEmail());
@@ -116,16 +147,16 @@ public class UserController {
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este email!");
         }
         else if( c.get().getEmail().equals(user.getEmail()) == false){ //ja existe user com email fornecido, abortar
-            System.out.println(c.get().getEmail() + " == " + user.getEmail());
+            System.out.println(c.get().getEmail() + " Este usuario ja existe no sistema ");
             return new Resposta(USERJAEXISTE, ME04_2);
         }
-
         try{
-            //a = c.get(0);
+            a = c.get();
             a.setEmail(user.getEmail());
-            a.setNome(user.getNome());
-            a.setSobrenome(user.getSobrenome());
-            a.setStatus(user.getStatus());
+            if( user.getNome()!= null || !user.getNome().isEmpty() || !user.getNome().isBlank() )
+                a.setNome(user.getNome());
+            if( user.getSobrenome() != null &&( !user.getSobrenome().isBlank() || !user.getSobrenome().isEmpty() ) )
+                a.setSobrenome(user.getSobrenome());
             a.setAvatar("avatar_" + user.email + "." 
                         + storageService.getExtensao(file.getOriginalFilename()));
 
