@@ -51,7 +51,8 @@ public class CustomUserDetailService implements UserDetailsService {
 
         System.out.println(user.getEmail());
 
-        User userItem = new User(user.getEmail(), "{noop}" + user.getPassword(),true,true,true,true, AuthorityUtils.createAuthorityList("ROLE_ADMIN", "ROLE_USER"));
+        User userItem = new User(user.getEmail(), "{noop}" + user.getPassword(),true,true,true,true, 
+            AuthorityUtils.createAuthorityList(user.getIsAdmin() ? "ROLE_ADMIN" : "ROLE_USER"));
 
         return userItem;
     }

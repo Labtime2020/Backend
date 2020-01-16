@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 
@@ -255,7 +256,8 @@ public class User1Controller {
         RedefinirSenhaToken token = redefinirSenhaTokenRepository.findByRedefinirSenhaToken(mtoken);
 
         if(token != null){
-            TokenAuthenticationService.addAuthentication(response, token.getUsuario().getEmail());//passe um token de autenticacao
+            TokenAuthenticationService.addAuthentication(response, token.getUsuario().getEmail(), 
+                AuthorityUtils.createAuthorityList("ROLE_USER"));//passe um token de autenticacao
 
             return new Resposta(OK, "Token retornado no header");
         }else{
