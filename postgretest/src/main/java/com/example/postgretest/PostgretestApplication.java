@@ -14,7 +14,7 @@ import com.example.postgretest.storage.StorageService;
 @EnableAsync
 @EnableConfigurationProperties(StorageProperties.class)
 public class PostgretestApplication {
-
+    
 	public static void main(String[] args) {
 		SpringApplication.run(PostgretestApplication.class, args);
 	}

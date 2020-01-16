@@ -95,7 +95,7 @@ public class Norma {
     }
 
     public NormaUI toNormaUI(){
-        NormaUI norm = new NormaUI(this.getNormaId(), this.getNome(), this.getDescricao(), this.getUrl(), this.isIsActive());
+        NormaUI norm = new NormaUI(this.getNormaId(), this.getNome(), this.getDescricao(), this.getUrl(), this.isIsActive(), this.visualizacao);
 
         for(Tag tag: this.getTags()){
             norm.tags.add(tag.getNome());

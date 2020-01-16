@@ -212,7 +212,7 @@ public class User1Controller {
         List<NormaUI> favoritos = new ArrayList<>();
 
         for(Norma norma: user.getFavoritos()){
-            favoritos.add(new NormaUI(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getUrl(), norma.isIsActive()));
+            favoritos.add(new NormaUI(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getUrl(), norma.isIsActive(), norma.getVisualizacao()));
         }
 
         return favoritos;
