@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
 @EnableWebSecurity
@@ -48,11 +49,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				UsernamePasswordAuthenticationFilter.class);
                                 
 	}
-
-      @Override
-      protected void addCorsMappings(CorsRegistry registry){
-            registry.addMapping("/**");
-      }
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
