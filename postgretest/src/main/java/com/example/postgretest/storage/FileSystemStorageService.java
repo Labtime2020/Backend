@@ -48,16 +48,17 @@ public class FileSystemStorageService implements StorageService {
 			throw new StorageException("Failed to store file " + filename, e);
 		}
 	}
-        public void remover(String filename){
-        
-                File arq = new File(this.rootLocation + "/" + filename);
-                
-                if(arq.delete())
-                    System.out.println("Remocao ok!");
-                else
-                    System.out.println("Falha ao remover");
+	
+    public void remover(String filename){
+    
+            File arq = new File(this.rootLocation + "/" + filename);
             
-        }
+            if(arq.delete())
+                System.out.println("Remocao ok!");
+            else
+                System.out.println("Falha ao remover");
+        
+    }
 
 	public String getExtensao(String filename){
 		int pos = filename.lastIndexOf(".");
