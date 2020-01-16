@@ -102,13 +102,15 @@ public class UserController {
         
         if(usuarioLogado.isEmpty() == false){
             Usuario userAtual = usuarioLogado.get(0);
-            if(userRepository.findByEmail(user.getEmail()).isEmpty() == false){
+            List<Usuario> outros = userRepository.findByEmail(user.getEmail());
+            if(outros.isEmpty() == false && outros.get(0).getId() != userAtual.getId() ){
                 System.out.println("Update de email nao sera feito, pois ja existe usuario cadastrado!");
                 return new Resposta(USERJAEXISTE, ME04_2);
             }
+            /*
             else if( user.getPassword().equals(userAtual.getPassword())){
                 return new Resposta(ERRO, ME19);
-            }
+            }*/
             else{
                 userAtual.setEmail(user.getEmail());
                 userAtual.setPassword(user.getPassword());
@@ -146,10 +148,11 @@ public class UserController {
         if( c.isEmpty() ){
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este email!");
         }
+        /*
         else if( c.get().getEmail().equals(user.getEmail()) == false){ //ja existe user com email fornecido, abortar
             System.out.println(c.get().getEmail() + " Este usuario ja existe no sistema ");
             return new Resposta(USERJAEXISTE, ME04_2);
-        }
+        }*/
         try{
             a = c.get();
             a.setEmail(user.getEmail());

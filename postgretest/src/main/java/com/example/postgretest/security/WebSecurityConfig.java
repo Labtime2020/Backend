@@ -23,6 +23,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         
 			.antMatchers("/addUser").permitAll()
                         .antMatchers("/updateUser").hasRole("ADMIN")
+                        .antMatchers("/updateMyData").hasAnyRole("USER", "ADMIN")
                         .antMatchers("/cadastrar").permitAll()
                         .antMatchers("/buscarusuarios").permitAll()
                         .antMatchers("/addUserAsAdmin").permitAll()
