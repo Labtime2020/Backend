@@ -57,6 +57,7 @@ public class Usuario implements Serializable{
     private int status;//situacao do usuario
     private boolean isAdmin;
     private int tentativaErrada;
+    private boolean online;
     @Column
     @Temporal(TemporalType.DATE)
     private Date registerDate;
@@ -66,6 +67,9 @@ public class Usuario implements Serializable{
     @Column
     @Temporal(TemporalType.DATE)
     private Date adminEndDate;
+    @Column
+    @Temporal(TemporalType.DATE)
+    private Date lastInteractionDate;
 
     @ManyToMany
     @JoinTable(name = "usuario_norma",
@@ -89,12 +93,34 @@ public class Usuario implements Serializable{
         this.status = 1;
         this.isAdmin = isAdmin;
         this.tentativaErrada = 0;
+        this.lastInteractionDate = new Date();
     }
     
     public UsuarioUI toUsuarioUI(){
         return new UsuarioUI(this.getId(), this.getEmail(), this.getNome(), this.getSobrenome(),
                 this.getIsAdmin(), this.getPassword(), this.getStatus());
     }   
+
+    public void atualizarEntrada(){
+        this.setLastInteractionDate(new Date());
+        this.setOnline(true);
+    }
+
+    public void setLastInteractionDate(Date date){
+        this.lastInteractionDate = date;
+    }
+
+    public Date getLastInteractionDate(){
+        return this.lastInteractionDate;
+    }
+
+    public boolean getOnline(){
+        return this.online;
+    }
+
+    public void setOnline(boolean online){
+        this.online = online;
+    }
 
     public void setAvatar(String avatar){
         this.avatar = avatar;

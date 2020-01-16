@@ -27,8 +27,7 @@ public class TokenAuthenticationService{
 	@Autowired
 	private CustomUserDetailService userDetailsService;
 
-	static final long EXPIRATION_TIME = 1
-	;
+	static final long EXPIRATION_TIME = 800000000;
 	static final String SECRET = "MySecret";
 	static final String TOKEN_PREFIX = "Bearer";
 	static final String HEADER_STRING = "Authorization";

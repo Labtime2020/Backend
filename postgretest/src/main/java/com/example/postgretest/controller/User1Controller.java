@@ -85,13 +85,53 @@ public class User1Controller {
     public User1Controller(FileSystemStorageService storageService){
         this.storageService = storageService;
     }
+
+    private void AtualizarEntrada(Authentication auth){
+        if(auth != null){
+            Usuario user = userRepository.findByEmail(auth.getName()).get(0);
+            user.atualizarEntrada();
+
+            userRepository.save(user);
+        }
+    }
+
     @PostMapping("/hey")
     public @ResponseBody String teste(){
         return "Ola mundo";
     }
 
+    @PostMapping("/buscarusuariosonline")
+    public List<UsuarioUI> buscarusuariosonline(Authentication auth, @RequestBody String email){    
+        // AtualizarEntrada(auth);
+
+        List<Usuario> users = userRepository.findByOnline(true);
+
+        System.out.println(users.size());
+        List<UsuarioUI> list = new ArrayList<>();
+
+        Date now = new Date();
+
+        for(Usuario user: users){
+            long diff = now.getTime() - user.getLastInteractionDate().getTime();
+
+            System.out.println(diff + " x " + TEMPO_ONLINE);
+
+            if(diff <= TEMPO_ONLINE){
+                list.add(user.toUsuarioUI());
+            }
+            else{
+                user.setOnline(false);
+                userRepository.save(user);
+            }
+        }
+
+        return list;
+    }
+
     @PostMapping("/buscarusuarioporemail")
-    public List<UsuarioUI> buscarusuarioporemail(@RequestBody String email){        
+    public List<UsuarioUI> buscarusuarioporemail(Authentication auth, @RequestBody String email){    
+        AtualizarEntrada(auth);
+
         List<Usuario> users = userRepository.findByEmailContaining(email);
 
         System.out.println(users.size());
@@ -106,7 +146,9 @@ public class User1Controller {
 
     @PostMapping("/obteravatarusuario")
     @ResponseBody
-    public ResponseEntity<Resource> obter_avatar_usuario(@RequestBody UsuarioUI usuario) {
+    public ResponseEntity<Resource> obter_avatar_usuario(Authentication auth, @RequestBody UsuarioUI usuario) {
+        AtualizarEntrada(auth);
+
         Usuario user = userRepository.findByEmail(usuario.email).get(0);
 
         Resource file = storageService.loadAsResource(user.getAvatar());
@@ -126,9 +168,11 @@ public class User1Controller {
     }
 
     @PostMapping("/cadastrar")
-    public Resposta cadastrar(@RequestParam(name="file", required=false) MultipartFile file, @RequestParam("usuario") String usuarioString) 
-    throws JsonProcessingException{
-        
+    public Resposta cadastrar(Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
+        @RequestParam("usuario") String usuarioString) 
+            throws JsonProcessingException{
+        AtualizarEntrada(auth);
+
         ObjectMapper mapper = new ObjectMapper();
         
         UsuarioUI usuario = mapper.readValue(usuarioString, UsuarioUI.class);
@@ -173,6 +217,8 @@ public class User1Controller {
 
     @PostMapping("/adicionarfavorito")
     public Resposta adicionar_favorito(Authentication auth, @RequestBody NormaUI norma){
+        AtualizarEntrada(auth);
+
         try{
             Norma nor = normaRepository.findByNome(norma.nome).get();
             System.out.println("aqui");
@@ -188,6 +234,8 @@ public class User1Controller {
 
     @PostMapping("/removerfavorito")
     public Resposta remover_favorito(Authentication auth, @RequestBody NormaUI norma){
+        AtualizarEntrada(auth);
+
         Usuario user = userRepository.findByEmail(auth.getName()).get(0);
 
         for(int i = 0 ; i < user.getFavoritos().size() ; i++){
@@ -207,6 +255,8 @@ public class User1Controller {
 
     @PostMapping("/listarfavoritos")
     public List<NormaUI> listarfavoritos(Authentication auth){
+        AtualizarEntrada(auth);
+
         Usuario user = userRepository.findByEmail(auth.getName()).get(0);
 
         List<NormaUI> favoritos = new ArrayList<>();
@@ -219,7 +269,9 @@ public class User1Controller {
     }
 
     @GetMapping("/buscarusuarios")
-    public List<UsuarioUI> buscarusuarios(){
+    public List<UsuarioUI> buscarusuarios(Authentication auth){
+        AtualizarEntrada(auth);
+
     	System.out.println("Buscando todos os usuarios");
 
     	List<Usuario> users = userRepository.findAllByOrderByNome();
@@ -233,7 +285,9 @@ public class User1Controller {
     }
 
     @PostMapping("/recuperarsenha")
-    public Resposta recuperarsenha(@RequestBody String email){
+    public Resposta recuperarsenha(Authentication auth, @RequestBody String email){
+        AtualizarEntrada(auth);
+
         List< Usuario > user = userRepository.findByEmail(email);
 
         if(user.size() == 0){
@@ -252,7 +306,9 @@ public class User1Controller {
     }
 
     @GetMapping("/redefinirsenha")
-    public Resposta redefinirsenha(HttpServletResponse response, @RequestParam("token")String mtoken){
+    public Resposta redefinirsenha(Authentication auth, HttpServletResponse response, @RequestParam("token")String mtoken){
+        AtualizarEntrada(auth);
+
         RedefinirSenhaToken token = redefinirSenhaTokenRepository.findByRedefinirSenhaToken(mtoken);
 
         if(token != null){
@@ -267,6 +323,7 @@ public class User1Controller {
 
     @PostMapping(path="/alterarsenha")
     public @ResponseBody Resposta alterarsenha(Authentication auth, @RequestBody String novaSenha){//precisa de autenticacao...
+        AtualizarEntrada(auth);
         System.out.println(auth.getName() + " eh o email");
 
         Usuario user = userRepository.findByEmail(auth.getName()).get(0);
@@ -286,7 +343,9 @@ public class User1Controller {
     }
 
     @GetMapping("/incrementar_erro/{email}")
-    public String incrementar_erro(HttpServletResponse response, @PathVariable String email){
+    public String incrementar_erro(Authentication auth, HttpServletResponse response, @PathVariable String email){
+        AtualizarEntrada(auth);
+
         Usuario user = userRepository.findByEmail(email).get(0);
         user.addTentativaErrada();
 
@@ -302,7 +361,8 @@ public class User1Controller {
     }
 
     @GetMapping("/desbloquear")
-    public String desbloquear(@RequestParam("token")String desbloqueioToken){
+    public String desbloquear(Authentication auth, @RequestParam("token")String desbloqueioToken){
+        AtualizarEntrada(auth);
         DesbloqueioToken token = desbloqueioTokenRepository.findByDesbloqueioToken(desbloqueioToken);
 
         if(token != null){
