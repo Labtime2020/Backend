@@ -8,12 +8,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
-    private CustomUserDetailService userDetailsService;
+      private CustomUserDetailService userDetailsService;
 
 	@Override
 	protected void configure(HttpSecurity HttpSecurity) throws Exception {
@@ -44,6 +45,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.addFilterBefore(new JWTAuthenticationFilter(),
 				UsernamePasswordAuthenticationFilter.class);
 	}
+
+      @Override
+      protected void addCorsMappings(CorsRegistry registry){
+            registry.addMapping("/**");
+      }
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {

@@ -118,6 +118,7 @@ public class UserController {
             a.setEmail(user.getEmail());
             a.setNome(user.getNome());
             a.setSobrenome(user.getSobrenome());
+            a.setStatus(user.getStatus());
             a.setAvatar("avatar_" + user.email + "." 
                         + storageService.getExtensao(file.getOriginalFilename()));
 
@@ -215,7 +216,8 @@ public class UserController {
                     usuario.setIsAdmin(false);
                     usuario.setAdminEndDate(new Date());
                 }
-                usuario.setStatus(0);
+                else
+                    usuario.setStatus(0);
             }
             else{/*ativar usuario*/
                 usuario.setStatus(1);
