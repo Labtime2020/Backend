@@ -55,7 +55,10 @@ import java.util.Date;
 import java.time.LocalDate;
 
 import static com.example.postgretest.util.Status.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
+
+@CrossOrigin(origins = "http://localhost:9090", allowedHeaders = "*")
 @RestController
 public class User1Controller {
     private final FileSystemStorageService storageService;
@@ -81,6 +84,10 @@ public class User1Controller {
     @Autowired
     public User1Controller(FileSystemStorageService storageService){
         this.storageService = storageService;
+    }
+    @PostMapping("/hey")
+    public @ResponseBody String teste(){
+        return "Ola mundo";
     }
 
     @PostMapping("/buscarusuarioporemail")
@@ -121,8 +128,9 @@ public class User1Controller {
     @PostMapping("/cadastrar")
     public Resposta cadastrar(@RequestParam(name="file", required=false) MultipartFile file, @RequestParam("usuario") String usuarioString) 
     throws JsonProcessingException{
+        
         ObjectMapper mapper = new ObjectMapper();
-
+        
         UsuarioUI usuario = mapper.readValue(usuarioString, UsuarioUI.class);
 
     	System.out.println("Cadastrando Usuario");
