@@ -18,6 +18,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity HttpSecurity) throws Exception {
 		HttpSecurity.csrf().disable().authorizeRequests()
+                        
 			.antMatchers("/addUser").permitAll()
                         .antMatchers("/updateUser").permitAll()
                         .antMatchers("/cadastrar").permitAll()
@@ -36,6 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/obterArquivoNorma").permitAll()
                         .antMatchers("/visualizarNorma").permitAll()
                         .antMatchers("/").permitAll()
+                        .antMatchers("/hey").permitAll()
                         .antMatchers("/recuperarsenha").permitAll()
 			.antMatchers(HttpMethod.POST, "/login").permitAll()
 			.anyRequest().authenticated()
@@ -44,6 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				UsernamePasswordAuthenticationFilter.class)
 			.addFilterBefore(new JWTAuthenticationFilter(),
 				UsernamePasswordAuthenticationFilter.class);
+                                
 	}
 
 	@Override

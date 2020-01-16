@@ -93,9 +93,16 @@ public class UserController {
     //     else
     //         return new Resposta(USERJAEXISTE,"ME04_2 - Usuario com email " + user.getEmail() + " ja existe no sistema");
     // }
+    
+    /*@PostMapping(path="/updateMyData")
+    public @ResponseBody Resposta updateMyData(Authentication auth, MultipartFile file, @RequestParam("usuario") String usuario) throws JsonProcessingException{
+        
+        
+        
+    }*/
 
     @PostMapping(path="/updateUser")
-    public @ResponseBody Resposta updateData(@RequestParam("file") MultipartFile file, @RequestParam("usuario") String usuarioString)
+    public @ResponseBody Resposta updateData(@RequestParam("file") MultipartFile file, Authentication auth, @RequestParam("usuario") String usuarioString)
     throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -103,18 +110,18 @@ public class UserController {
 
         System.out.println(user.getEmail());
         
-        List <Usuario> c = userRepository.findByEmail(user.getEmail());
+        Optional<Usuario> c = userRepository.findById(user.getId());
         
         if( c.isEmpty() ){
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este email!");
         }
-        else if( c.get(0).getEmail().equals(user.getEmail()) == false){ //ja existe user com email fornecido, abortar
-            System.out.println(c.get(0).getEmail() + " == " + user.getEmail());
+        else if( c.get().getEmail().equals(user.getEmail()) == false){ //ja existe user com email fornecido, abortar
+            System.out.println(c.get().getEmail() + " == " + user.getEmail());
             return new Resposta(USERJAEXISTE, ME04_2);
         }
 
         try{
-            a = c.get(0);
+            //a = c.get(0);
             a.setEmail(user.getEmail());
             a.setNome(user.getNome());
             a.setSobrenome(user.getSobrenome());
