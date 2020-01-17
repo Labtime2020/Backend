@@ -47,6 +47,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import javax.servlet.http.HttpServletResponse;
+
+import com.example.postgretest.security.TokenAuthenticationService;
 import com.example.postgretest.storage.StorageFileNotFoundException;
 import com.example.postgretest.storage.FileSystemStorageService;
 
@@ -99,7 +102,8 @@ public class UserController {
     // }
     
     @PostMapping(path="/updateMyData")
-    public @ResponseBody Resposta updateMyData(Authentication auth, MultipartFile file, @RequestParam("usuario") String usuarioString) throws JsonProcessingException{
+    public @ResponseBody Resposta updateMyData(Authentication auth, MultipartFile file, @RequestParam("usuario") String usuarioString,
+        HttpServletResponse response) throws JsonProcessingException{
         List<Usuario> usuarioLogado = userRepository.findByEmail(auth.getName());
         ObjectMapper mapper = new ObjectMapper();
         UsuarioUI user = mapper.readValue(usuarioString, UsuarioUI.class);
@@ -124,16 +128,21 @@ public class UserController {
                     userAtual.setNome(user.getNome());
                 if( user.getSobrenome() != null &&( !user.getSobrenome().isBlank() || !user.getSobrenome().isEmpty() ) )
                     userAtual.setSobrenome(user.getSobrenome());
-                userAtual.setAvatar("avatar_" + user.email + "." 
-                        + storageService.getExtensao(file.getOriginalFilename()));
+                if(file != null)
+                    userAtual.setAvatar("avatar_" + user.email + "." 
+                            + storageService.getExtensao(file.getOriginalFilename()));
             }
             userRepository.save(userAtual);
+            
             try{
-                storageService.salvar(file, userAtual.getAvatar());
+                if(file != null)
+                    storageService.salvar(file, userAtual.getAvatar());
             }catch(Exception ex){
                 return new Resposta(ERRO, "Falha ao salvar avatar");
             }
             
+            TokenAuthenticationService.addAuthentication(response, userAtual.getEmail(), auth.getAuthorities());
+
             System.out.println(userAtual.getId());
             return new Resposta(OK, "User information updated");
         }
