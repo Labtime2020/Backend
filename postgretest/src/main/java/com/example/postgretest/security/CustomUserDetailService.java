@@ -3,7 +3,6 @@ package com.example.postgretest.security;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.postgretest.model.Aluno;
 import com.example.postgretest.repository.UserRepository;
 
 import org.springframework.security.core.authority.AuthorityUtils;

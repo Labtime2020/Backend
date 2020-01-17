@@ -98,7 +98,7 @@ public class User1Controller {
     }
 
     @PostMapping("/buscarusuariosonline")
-    public List<UsuarioUI> buscarusuariosonline(Authentication auth, @RequestBody String email){    
+    public List<UsuarioUI> buscarusuariosonline(Authentication auth){    
         // AtualizarEntrada(auth);
 
         List<Usuario> users = userRepository.findByOnline(true);
