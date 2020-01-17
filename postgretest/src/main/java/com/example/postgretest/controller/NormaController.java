@@ -32,6 +32,7 @@ import com.example.postgretest.storage.FileSystemStorageService;
 import static com.example.postgretest.util.Status.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.URI;
 
 import java.util.Date;
 import java.time.LocalDate;
@@ -43,11 +44,14 @@ import java.util.TreeSet;
 import java.util.Optional;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 public class NormaController {
@@ -144,7 +148,7 @@ public class NormaController {
     }
 
     @PostMapping(path="/visualizarNorma")
-    public @ResponseBody String visualizarNorma(Authentication auth, @RequestBody NormaUI norma){
+    public /*ResponseEntity<Void>*/ String visualizarNorma(Authentication auth, @RequestBody NormaUI norma){
         AtualizarEntrada(auth);
 
         Optional<Norma> nrm = normaRepository.findByNormaId(norma.getNormaId());
@@ -156,7 +160,10 @@ public class NormaController {
             Norma n0 = nrm.get();
             n0.setVisualizacao(n0.getVisualizacao()+1);
             normaRepository.save(n0);
-            return norma.getUrl();
+            /*return ResponseEntity.status(HttpStatus.FOUND)
+        .location(URI.create(n0.getUrl()))
+        .build();*/
+            return n0.getUrl();
         }
     }
 
