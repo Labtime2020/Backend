@@ -58,6 +58,7 @@ public class Usuario implements Serializable{
     private boolean isAdmin;
     private int tentativaErrada;
     private boolean online;
+    private long lastInteractionDate;
     @Column
     @Temporal(TemporalType.DATE)
     private Date registerDate;
@@ -67,9 +68,6 @@ public class Usuario implements Serializable{
     @Column
     @Temporal(TemporalType.DATE)
     private Date adminEndDate;
-    @Column
-    @Temporal(TemporalType.DATE)
-    private Date lastInteractionDate;
 
     @ManyToMany
     @JoinTable(name = "usuario_norma",
@@ -93,7 +91,7 @@ public class Usuario implements Serializable{
         this.status = 1;
         this.isAdmin = isAdmin;
         this.tentativaErrada = 0;
-        this.lastInteractionDate = new Date();
+        this.lastInteractionDate = (new Date()).getTime();
     }
     
     public UsuarioUI toUsuarioUI(){
@@ -107,10 +105,10 @@ public class Usuario implements Serializable{
     }
 
     public void setLastInteractionDate(Date date){
-        this.lastInteractionDate = date;
+        this.lastInteractionDate = date.getTime();
     }
 
-    public Date getLastInteractionDate(){
+    public long getLastInteractionDate(){
         return this.lastInteractionDate;
     }
 

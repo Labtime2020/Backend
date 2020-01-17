@@ -185,7 +185,7 @@ public class NormaController {
         
         else if( ( norma.getUrl() == null && file == null ) || ( norma.getUrl() == null && file.isEmpty() == true ) )
             return new Resposta(ERRO,ME17);
-        else if( (file.getSize()/1024) >= 100024 ){
+        else if(file != null && (file.getSize()/1024) >= 100024 ){
             return new Resposta(ERRO, ME_C_4);
         }
         else{

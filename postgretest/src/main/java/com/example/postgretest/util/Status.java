@@ -45,5 +45,5 @@ public final class Status{
 	public static final int MAX_NUM_TENTATIVAS = 5;//maximo numero de tentativas erradas no login
 	public static final String MA01 = "nenhum resultado nao encontrado";
         
-	public static final long TEMPO_ONLINE = 60 * 1 * 1000;
+	public static final long TEMPO_ONLINE = 60 * 10 * 1000;
 }
