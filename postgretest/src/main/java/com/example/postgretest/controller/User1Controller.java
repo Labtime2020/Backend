@@ -109,7 +109,7 @@ public class User1Controller {
         Date now = new Date();
 
         for(Usuario user: users){
-            long diff = now.getTime() - user.getLastInteractionDate().getTime();
+            long diff = now.getTime() - user.getLastInteractionDate();
 
             System.out.println(diff + " x " + TEMPO_ONLINE);
 
