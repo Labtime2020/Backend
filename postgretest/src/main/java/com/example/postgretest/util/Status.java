@@ -22,6 +22,7 @@ public final class Status{
         public static final String ME_C_1 = "Usuario nao e admin!";
         public static final String ME_C_2 = "Uusario inexistente";
         public static final String ME_C_3 = "Nao eh possivel alterar informacoes de outro usuario";
+        public static final String ME_C_4 = "Tamanho de arquivo nao permitido";
         public static final String ME01 = "Erro";
         public static final String ME04_2 = "Email ja foi cadastrado por outro usuario";
         public static final String ME05 = "Unico administrador do sistema";
@@ -43,5 +44,6 @@ public final class Status{
 	public static final String ERRO_SENHA_ERRADA = "Bad credentials";
 	public static final int MAX_NUM_TENTATIVAS = 5;//maximo numero de tentativas erradas no login
 	public static final String MA01 = "nenhum resultado nao encontrado";
+        
 	public static final long TEMPO_ONLINE = 60 * 1 * 1000;
 }

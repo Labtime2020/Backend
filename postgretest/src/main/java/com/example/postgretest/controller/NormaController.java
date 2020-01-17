@@ -147,7 +147,7 @@ public class NormaController {
     public @ResponseBody String visualizarNorma(Authentication auth, @RequestBody NormaUI norma){
         AtualizarEntrada(auth);
 
-        Optional<Norma> nrm = normaRepository.findByNome(norma.getNome());
+        Optional<Norma> nrm = normaRepository.findByNormaId(norma.getNormaId());
         if( nrm.isEmpty() == true){
             System.out.println("Norma nula");
             return null;
@@ -178,6 +178,9 @@ public class NormaController {
         
         else if( ( norma.getUrl() == null && file == null ) || ( norma.getUrl() == null && file.isEmpty() == true ) )
             return new Resposta(ERRO,ME17);
+        else if( (file.getSize()/1024) >= 100024 ){
+            return new Resposta(ERRO, ME_C_4);
+        }
         else{
             //extraindo id pelo token*/
             userChk = userRepository.findByEmail(auth.getName());
@@ -238,7 +241,9 @@ public class NormaController {
         else if( (normaChk.get().getArquivo() == null) && 
                  ((norma.getUrl() == null && file == null )|| ( norma.getUrl() == null && file.isEmpty() == true )) )
             return new Resposta(ERRO,ME17);
-        
+        else if( (file.getSize()/1024) >= 100024 ){
+            return new Resposta(ERRO, ME_C_4);
+        }
         else{
             Norma normaAntiga = normaChk.get();//salvo a norma antiga para enviar email com alteracoes
             String tmpPath = normaAntiga.getArquivo();

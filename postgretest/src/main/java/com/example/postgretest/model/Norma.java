@@ -95,7 +95,8 @@ public class Norma {
     }
 
     public NormaUI toNormaUI(){
-        NormaUI norm = new NormaUI(this.getNormaId(), this.getNome(), this.getDescricao(), this.getUrl(), this.isIsActive(), this.visualizacao);
+        System.out.println("Qtde de visualizacoes>>>> " + this.visualizacao);
+        NormaUI norm = new NormaUI(this.getNormaId(), this.getNome(), this.getDescricao(), this.getUrl(), this.isIsActive(), this.getVisualizacao(), this.getDownload());
 
         for(Tag tag: this.getTags()){
             norm.tags.add(tag.getNome());
@@ -109,7 +110,7 @@ public class Norma {
     }
 
     public int getVisualizacao() {
-        return visualizacao;
+        return this.visualizacao;
     }
     
 
