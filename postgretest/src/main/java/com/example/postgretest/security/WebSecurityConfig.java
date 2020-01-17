@@ -1,5 +1,9 @@
 package com.example.postgretest.security;
 
+import com.example.postgretest.repository.UserRepository;
+import com.example.postgretest.model.Usuario;
+import com.example.postgretest.service.EmailSenderService;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -14,8 +18,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+      @Autowired
+      private UserRepository userRepository;
+
 	@Autowired
       private CustomUserDetailService userDetailsService;
+
+      @Autowired
+      private EmailSenderService javaMailSender;
 
 	@Override
 	protected void configure(HttpSecurity HttpSecurity) throws Exception {
@@ -45,7 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers(HttpMethod.POST, "/login").permitAll()
 			.anyRequest().authenticated()
 			.and()
-			.addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),
+			.addFilterBefore(new JWTLoginFilter("/login", authenticationManager(), userRepository, javaMailSender),
 				UsernamePasswordAuthenticationFilter.class)
 			.addFilterBefore(new JWTAuthenticationFilter(),
 				UsernamePasswordAuthenticationFilter.class);

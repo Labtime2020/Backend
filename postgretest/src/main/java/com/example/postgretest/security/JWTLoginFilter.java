@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.model.Usuario;
+import com.example.postgretest.service.EmailSenderService;
+
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
@@ -34,13 +36,16 @@ import org.springframework.web.client.RestTemplate;
 import static com.example.postgretest.util.Status.*;
 
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
-	@Autowired
+    private EmailSenderService emailSenderService;
     private UserRepository userRepository;
 	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
-	protected JWTLoginFilter(String url, AuthenticationManager authManager){
+	protected JWTLoginFilter(String url, AuthenticationManager authManager, 
+		UserRepository userRepository, EmailSenderService emailSender){
 		super(new AntPathRequestMatcher(url));
 		super.setAuthenticationManager(authManager);
+		this.userRepository = userRepository;
+		this.emailSenderService = emailSender;
 	}
 
 	@Override
@@ -81,26 +86,30 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 		System.out.println(failed.toString());
 		String messages[] = failed.toString().split(": ");
 
-		/*PrintWriter out = response.getWriter();
-
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		out.print("{teste: 'teste'}");
-		out.flush();
-	*/
-
 		if(failed instanceof org.springframework.security.authentication.BadCredentialsException){
-			System.out.println("Mandando aqui!!");
+			System.out.println("errou a senha");
+		    String result;
+		    String email = (String) request.getAttribute("username");
 
-			final String uri = API_ADDRESS + "/incrementar_erro/" + request.getAttribute("username");
+		    Usuario user = userRepository.findByEmail(email).get(0);
+	        user.addTentativaErrada();
 
-		    RestTemplate restTemplate = new RestTemplate();
-		    String result = restTemplate.getForObject(uri, String.class);
+	        userRepository.save(user);
+
+	        if(user.getTentativaErrada() >= MAX_NUM_TENTATIVAS){
+	            //enviar email com instrucoes para usuario!.
+	            emailSenderService.sendDesbloqueioToken(user);
+	            result = ME10_1;
+	        }else{
+	        	result = ME09;
+	        }
+
+	        System.out.println(result);
 
 		    messages[1] = result;
 		}
 
-		response.sendError(401, messages[1]);
-	//	failureHandler.onAuthenticationFailure(request, response, failed);
+		response.addHeader("msg", messages[1]);
+		failureHandler.onAuthenticationFailure(request, response, failed);
 	}
 }

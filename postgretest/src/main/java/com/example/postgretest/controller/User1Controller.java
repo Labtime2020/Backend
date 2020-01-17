@@ -76,9 +76,6 @@ public class User1Controller {
     private UserRepository userRepository;
 
     @Autowired
-    private EmailSenderService javaMailSender;
-
-    @Autowired
     private NormaRepository normaRepository;
     
     @Autowired
@@ -340,24 +337,6 @@ public class User1Controller {
         userRepository.save(user);
 
         return new Resposta(OK, MS01 + "senha atualizada com sucesso");
-    }
-
-    @GetMapping("/incrementar_erro/{email}")
-    public String incrementar_erro(Authentication auth, HttpServletResponse response, @PathVariable String email){
-        AtualizarEntrada(auth);
-
-        Usuario user = userRepository.findByEmail(email).get(0);
-        user.addTentativaErrada();
-
-        userRepository.save(user);
-
-        if(user.getTentativaErrada() >= MAX_NUM_TENTATIVAS){
-            //enviar email com instrucoes para usuario!.
-            emailSenderService.sendDesbloqueioToken(user);
-            return ME10_1;
-        }
-
-        return ME09;
     }
 
     @GetMapping("/desbloquear")
