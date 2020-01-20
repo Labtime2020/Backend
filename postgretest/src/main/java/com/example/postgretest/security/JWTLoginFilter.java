@@ -34,6 +34,10 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.web.client.RestTemplate;
 
 import static com.example.postgretest.util.Status.*;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+
 
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
     private EmailSenderService emailSenderService;
@@ -50,12 +54,21 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-		AccountCredentials credentials = new ObjectMapper()
+                
+                String s = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                
+                System.out.println("Corpo da requisicao: "  + s + "\n\n\nFim" );
+                
+                
+                AccountCredentials credentials = new ObjectMapper()
 			.readValue(request.getInputStream(), AccountCredentials.class);
 
+                
+                
 		if(userRepository == null){
 			System.out.println("nulo!");
 		}
+                
 
 		System.out.println(credentials.getUsername());
 		System.out.println(credentials.getPassword());

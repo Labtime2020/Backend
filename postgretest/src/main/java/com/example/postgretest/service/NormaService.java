@@ -3,40 +3,55 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.example.postgretest.Controller;
+package com.example.postgretest.service;
 
+import com.example.postgretest.Controller.Resposta;
 import com.example.postgretest.model.Norma;
-import com.example.postgretest.model.Usuario;
 import com.example.postgretest.model.NormaUI;
+import com.example.postgretest.model.Tag;
 import com.example.postgretest.model.TagUI;
+import com.example.postgretest.model.Usuario;
 import com.example.postgretest.repository.NormaRepository;
 import com.example.postgretest.repository.TagRepository;
-
+import com.example.postgretest.repository.UserRepository;
+import com.example.postgretest.storage.FileSystemStorageService;
+import static com.example.postgretest.util.Status.ERRO;
+import static com.example.postgretest.util.Status.ME15;
+import static com.example.postgretest.util.Status.ME17;
+import static com.example.postgretest.util.Status.ME_C_0;
+import static com.example.postgretest.util.Status.ME_C_4;
+import static com.example.postgretest.util.Status.MS01;
+import static com.example.postgretest.util.Status.NORMAJAEXISTE;
+import static com.example.postgretest.util.Status.NORMA_INEXISTENTE;
+import static com.example.postgretest.util.Status.OK;
+import static com.example.postgretest.util.Status.SEMUSER;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.example.postgretest.repository.UserRepository;
-import com.example.postgretest.service.EmailSenderService;
-import com.example.postgretest.service.NormaService;
-import com.example.postgretest.storage.FileSystemStorageService;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.List;
-import java.util.Set;
-import java.util.Optional;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
-@RestController
-public class NormaController {
+/**
+ *
+ * @author labtime
+ */
+@Service
+public class NormaService {
     @Autowired
     TagRepository tagRepository;
     @Autowired
@@ -51,10 +66,7 @@ public class NormaController {
     
     private final FileSystemStorageService storageService;
     
-    @Autowired
-    NormaService normaService;
-    
-    /*private void AtualizarEntrada(Authentication auth){
+    private void AtualizarEntrada(Authentication auth){
         if(auth != null){
             System.out.println(auth.getName() + " entrou!");
             
@@ -63,18 +75,15 @@ public class NormaController {
 
             userRepository.save(user);
         }
-    }*/
+    }
 
     @Autowired
-    public NormaController(FileSystemStorageService storageService){
+    public NormaService(FileSystemStorageService storageService){
         this.storageService = storageService;
     }
 
     @GetMapping("/buscartags")
     public TagUI buscartags(Authentication auth){
-        return normaService.buscartags(auth);
-    }
-    /*public TagUI buscartags(Authentication auth){
         AtualizarEntrada(auth);
 
         TagUI tags = new TagUI();
@@ -85,13 +94,10 @@ public class NormaController {
         }
 
         return tags;
-    }*/
+    }
 
     @PostMapping("/filtrarnormas")
     public Set<NormaUI> filtrarnormas(Authentication auth, @RequestBody TagUI tags){
-        return normaService.filtrarnormas(auth, tags);
-    }
-    /*public Set<NormaUI> filtrarnormas(Authentication auth, @RequestBody TagUI tags){
         AtualizarEntrada(auth);
 
         Set<NormaUI> normas = new TreeSet<>();
@@ -105,13 +111,10 @@ public class NormaController {
         }
 
         return normas;
-    }*/
+    }
 
     @GetMapping("/buscarnormas")
     public List<NormaUI> buscarnormas(Authentication auth){
-        return normaService.buscarnormas(auth);
-    }
-    /*public List<NormaUI> buscarnormas(Authentication auth){
         AtualizarEntrada(auth);
 
         List<Norma> norms = normaRepository.findAll();
@@ -122,13 +125,10 @@ public class NormaController {
         }
 
         return normas;
-    }*/
+    }
 
     @PostMapping(path="/obterArquivoNorma")
     public ResponseEntity<Resource> obterArquivoNorma(Authentication auth, @RequestBody NormaUI norma){
-        return normaService.obterArquivoNorma(auth, norma);
-    }
-    /*public ResponseEntity<Resource> obterArquivoNorma(Authentication auth, @RequestBody NormaUI norma){
         AtualizarEntrada(auth);
 
         Optional<Norma> n1 = normaRepository.findByNormaId(norma.getNormaId());
@@ -142,13 +142,10 @@ public class NormaController {
         }
         else
             return null;
-    }*/
+    }
 
     @PostMapping(path="/visualizarNorma")
-    public  String visualizarNorma(Authentication auth, @RequestBody NormaUI norma){
-        return normaService.visualizarNorma(auth, norma);
-    }
-    /*public  String visualizarNorma(Authentication auth, @RequestBody NormaUI norma){
+    public /*ResponseEntity<Void>*/ String visualizarNorma(Authentication auth, @RequestBody NormaUI norma){
         AtualizarEntrada(auth);
 
         Optional<Norma> nrm = normaRepository.findByNormaId(norma.getNormaId());
@@ -160,23 +157,19 @@ public class NormaController {
             Norma n0 = nrm.get();
             n0.setVisualizacao(n0.getVisualizacao()+1);
             normaRepository.save(n0);
-            //return ResponseEntity.status(HttpStatus.FOUND)
-            //.location(URI.create(n0.getUrl()))
-            //.build();
+            /*return ResponseEntity.status(HttpStatus.FOUND)
+        .location(URI.create(n0.getUrl()))
+        .build();*/
             return n0.getUrl();
         }
-    }*/
+    }
 
     @PostMapping(path="/addNorma")
     public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
             @RequestParam("norma") String n1 ) throws JsonProcessingException{
-        return normaService.addNorma(auth, file, n1);
-    }
-    /*public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
-            @RequestParam("norma") String n1 ) throws JsonProcessingException{
         AtualizarEntrada(auth);
 
-       //com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores
+       /*com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores*/
         ObjectMapper obj = new ObjectMapper();
         
         NormaUI norma = obj.readValue(n1, NormaUI.class);
@@ -193,7 +186,7 @@ public class NormaController {
             return new Resposta(ERRO, ME_C_4);
         }
         else{
-            //extraindo id pelo token
+            //extraindo id pelo token*/
             userChk = userRepository.findByEmail(auth.getName());
             
             if( userChk.isEmpty() )
@@ -234,15 +227,10 @@ public class NormaController {
                 return new Resposta(OK, "Norma cadastrada com sucesso");
             }
         }
-    }*/
+    }
     
     @PostMapping(path="/updateNorma")
     public @ResponseBody Resposta updateNorma( Authentication auth,
-            @RequestParam(name="file", required=false) MultipartFile file ,
-            @RequestParam("norma") String n1 ) throws JsonProcessingException{
-        return normaService.updateNorma(auth, file, n1);
-    }
-    /*public @ResponseBody Resposta updateNorma( Authentication auth,
             @RequestParam(name="file", required=false) MultipartFile file ,
             @RequestParam("norma") String n1 ) throws JsonProcessingException{
         AtualizarEntrada(auth);
@@ -269,7 +257,7 @@ public class NormaController {
 
                 if(!norma1.isEmpty() &&
                     norma1.get().getNormaId() != norma.getNormaId()
-                  )/*se ja existe uma norma com o nome fornecido e essa norma tem um id diferente da norma atual, aborte
+                  )/*se ja existe uma norma com o nome fornecido e essa norma tem um id diferente da norma atual, aborte*/
                 {
                     System.out.println(ME15 + ". Abortando...");
                     return new Resposta(NORMAJAEXISTE, ME15);
@@ -338,14 +326,10 @@ public class NormaController {
             }   
         }
         return new Resposta(OK, MS01);
-    }*/
+    }
     
     @PostMapping(path="/updateNormaStatus")
     public @ResponseBody Resposta updateStatus( Authentication auth, @RequestBody NormaUI norma){
-        return normaService.updateStatus(auth, norma);
-    }
-        
-    /*public @ResponseBody Resposta updateStatus( Authentication auth, @RequestBody NormaUI norma){
         AtualizarEntrada(auth);
 
         Optional<Norma> n = normaRepository.findByNormaId(norma.getNormaId());
@@ -355,7 +339,7 @@ public class NormaController {
             }
             else if( norma.isIsActive() == n.get().isIsActive() ){
                 return new Resposta(ERRO, "Nao houve mudanca de estado");
-            }//nao houve mudanca de estado
+            }/*nao houve mudanca de estado*/
             else{
                 System.out.println("Entrou!");
                 Norma n1 = n.get();
@@ -374,5 +358,5 @@ public class NormaController {
             e.printStackTrace();
         }
         return new Resposta(OK,MS01);
-    }*/
+    }
 }

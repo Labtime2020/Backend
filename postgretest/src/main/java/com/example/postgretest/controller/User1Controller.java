@@ -1,68 +1,47 @@
 package com.example.postgretest.Controller;
 
-import java.io.IOException;
-import java.util.stream.Collectors;
-
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 
-import com.example.postgretest.model.DesbloqueioToken;
-import com.example.postgretest.model.RedefinirSenhaToken;
 import com.example.postgretest.repository.RedefinirSenhaTokenRepository;
 import com.example.postgretest.repository.DesbloqueioTokenRepository;
 import com.example.postgretest.service.EmailSenderService;
 import com.example.postgretest.Controller.Resposta;
-import com.example.postgretest.model.Usuario;
 import com.example.postgretest.model.UsuarioUI;
-import com.example.postgretest.model.Norma;
 import com.example.postgretest.model.NormaUI;
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.repository.NormaRepository;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.example.postgretest.security.TokenAuthenticationService;
+import com.example.postgretest.service.UserService;
 
-import com.example.postgretest.storage.StorageFileNotFoundException;
 import com.example.postgretest.storage.FileSystemStorageService;
 
-import java.util.Date;
-import java.time.LocalDate;
 
 import static com.example.postgretest.util.Status.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-
-@CrossOrigin(origins = "http://localhost:9090", allowedHeaders = "*")
+@CrossOrigin(origins="http://localhost:9090", allowedHeaders = "*")
 @RestController
 public class User1Controller {
     private final FileSystemStorageService storageService;
-
+    
+    @Autowired
+    private UserService userService;
+    
     @Autowired
     private DesbloqueioTokenRepository desbloqueioTokenRepository;
 
@@ -83,14 +62,14 @@ public class User1Controller {
         this.storageService = storageService;
     }
 
-    private void AtualizarEntrada(Authentication auth){
+    /*private void AtualizarEntrada(Authentication auth){
         if(auth != null){
             Usuario user = userRepository.findByEmail(auth.getName()).get(0);
             user.atualizarEntrada();
 
             userRepository.save(user);
         }
-    }
+    }*/
 
     @PostMapping("/hey")
     public @ResponseBody String teste(){
@@ -99,6 +78,9 @@ public class User1Controller {
 
     @PostMapping("/buscarusuariosonline")
     public List<UsuarioUI> buscarusuariosonline(Authentication auth){    
+        return userService.buscarusuariosonline(auth, MA01);
+    }
+    /*public List<UsuarioUI> buscarusuariosonline(Authentication auth){    
         // AtualizarEntrada(auth);
 
         List<Usuario> users = userRepository.findByOnline(true);
@@ -123,10 +105,13 @@ public class User1Controller {
         }
 
         return list;
-    }
+    }*/
 
     @PostMapping("/buscarusuarioporemail")
-    public List<UsuarioUI> buscarusuarioporemail(Authentication auth, @RequestBody String email){    
+    public List<UsuarioUI> buscarusuarioporemail(Authentication auth, @RequestBody String email){
+        return userService.buscarusuarioporemail(auth, email);
+    }
+    /*public List<UsuarioUI> buscarusuarioporemail(Authentication auth, @RequestBody String email){    
         AtualizarEntrada(auth);
 
         List<Usuario> users = userRepository.findByEmailContaining(email);
@@ -139,11 +124,14 @@ public class User1Controller {
         }
 
         return list;
-    }
+    }*/
 
     @PostMapping("/obteravatarusuario")
     @ResponseBody
     public ResponseEntity<Resource> obter_avatar_usuario(Authentication auth, @RequestBody UsuarioUI usuario) {
+        return userService.obter_avatar_usuario(auth, usuario);
+    }
+    /*public ResponseEntity<Resource> obter_avatar_usuario(Authentication auth, @RequestBody UsuarioUI usuario) {
         AtualizarEntrada(auth);
 
         Usuario user = userRepository.findByEmail(usuario.email).get(0);
@@ -152,20 +140,27 @@ public class User1Controller {
 
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-    }
+    }*/
 
     @PostMapping("/obterminhaavatar")
     public ResponseEntity<Resource> obter_minha_avatar(Authentication auth){
+        return userService.obter_minha_avatar(auth);
+    }
+    /*public ResponseEntity<Resource> obter_minha_avatar(Authentication auth){
         Usuario user = userRepository.findByEmail(auth.getName()).get(0);
 
         Resource file = storageService.loadAsResource(user.getAvatar());
 
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-    }
+    }*/
 
     @PostMapping("/cadastrar")
-    public Resposta cadastrar(Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
+    public Resposta createUser(Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
+        @RequestParam("usuario") String usuarioString) throws JsonProcessingException{
+        return userService.cadastrar(auth, file, usuarioString);
+    }
+    /*public Resposta cadastrar(Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
         @RequestParam("usuario") String usuarioString) 
             throws JsonProcessingException{
         AtualizarEntrada(auth);
@@ -210,10 +205,14 @@ public class User1Controller {
 
     		return new Resposta(OK, MS01);
     	}
-    }
+    }*/
 
     @PostMapping("/adicionarfavorito")
-    public Resposta adicionar_favorito(Authentication auth, @RequestBody NormaUI norma){
+    public Resposta addFavorite(Authentication auth, @RequestBody NormaUI norma){
+        //atualizar entrada
+        return userService.adicionar_favorito(auth, norma);
+    }
+    /*public Resposta adicionar_favorito(Authentication auth, @RequestBody NormaUI norma){
         AtualizarEntrada(auth);
 
         try{
@@ -227,10 +226,13 @@ public class User1Controller {
             System.out.println("erro" + e.getMessage());
         }
         return new Resposta(OK, "favoritado com sucesso");
-    }
+    }*/
 
     @PostMapping("/removerfavorito")
     public Resposta remover_favorito(Authentication auth, @RequestBody NormaUI norma){
+        return userService.remover_favorito(auth, norma);
+    }
+    /*public Resposta remover_favorito(Authentication auth, @RequestBody NormaUI norma){
         AtualizarEntrada(auth);
 
         Usuario user = userRepository.findByEmail(auth.getName()).get(0);
@@ -248,10 +250,13 @@ public class User1Controller {
         userRepository.save(user);
 
         return new Resposta(OK, "desfavoritado com sucesso");
-    }
+    }*/
 
     @PostMapping("/listarfavoritos")
     public List<NormaUI> listarfavoritos(Authentication auth){
+        return userService.listarfavoritos(auth);
+    }
+    /*public List<NormaUI> listarfavoritos(Authentication auth){
         AtualizarEntrada(auth);
 
         Usuario user = userRepository.findByEmail(auth.getName()).get(0);
@@ -263,10 +268,13 @@ public class User1Controller {
         }
 
         return favoritos;
-    }
+    }*/
 
     @GetMapping("/buscarusuarios")
     public List<UsuarioUI> buscarusuarios(Authentication auth){
+        return userService.buscarusuarios(auth);
+    }
+    /*public List<UsuarioUI> buscarusuarios(Authentication auth){
         AtualizarEntrada(auth);
 
     	System.out.println("Buscando todos os usuarios");
@@ -279,10 +287,13 @@ public class User1Controller {
     	}
 
     	return usuarios;
-    }
+    }*/
 
     @PostMapping("/recuperarsenha")
     public Resposta recuperarsenha(Authentication auth, @RequestBody String email){
+        return userService.recuperarsenha(auth, email);
+    }
+    /*public Resposta recuperarsenha(Authentication auth, @RequestBody String email){
         AtualizarEntrada(auth);
 
         List< Usuario > user = userRepository.findByEmail(email);
@@ -300,10 +311,13 @@ public class User1Controller {
         emailSenderService.sendRedefinirSenhaToken(user.get(0));
         
         return new Resposta(OK, "um email foi enviado com as instrucoes para redefinicao de senha");
-    }
+    }*/
 
     @GetMapping("/redefinirsenha")
     public Resposta redefinirsenha(Authentication auth, HttpServletResponse response, @RequestParam("token")String mtoken){
+        return userService.redefinirsenha(auth, response, mtoken);
+    }
+    /*public Resposta redefinirsenha(Authentication auth, HttpServletResponse response, @RequestParam("token")String mtoken){
         AtualizarEntrada(auth);
 
         RedefinirSenhaToken token = redefinirSenhaTokenRepository.findByRedefinirSenhaToken(mtoken);
@@ -316,10 +330,13 @@ public class User1Controller {
         }else{
             return new Resposta(ERRO, "token invalido");
         }
-    }
+    }*/
 
     @PostMapping(path="/alterarsenha")
-    public @ResponseBody Resposta alterarsenha(Authentication auth, @RequestBody String novaSenha){//precisa de autenticacao...
+    public @ResponseBody Resposta alterarsenha(Authentication auth, @RequestBody String novaSenha){
+        return userService.alterarsenha(auth, novaSenha);
+    }
+    /*public @ResponseBody Resposta alterarsenha(Authentication auth, @RequestBody String novaSenha){//precisa de autenticacao...
         AtualizarEntrada(auth);
         System.out.println(auth.getName() + " eh o email");
 
@@ -337,10 +354,13 @@ public class User1Controller {
         userRepository.save(user);
 
         return new Resposta(OK, MS01 + "senha atualizada com sucesso");
-    }
+    }*/
 
     @GetMapping("/desbloquear")
     public String desbloquear(Authentication auth, @RequestParam("token")String desbloqueioToken){
+        return userService.desbloquear(auth, desbloqueioToken);
+    }
+    /*public String desbloquear(Authentication auth, @RequestParam("token")String desbloqueioToken){
         AtualizarEntrada(auth);
         DesbloqueioToken token = desbloqueioTokenRepository.findByDesbloqueioToken(desbloqueioToken);
 
@@ -358,5 +378,5 @@ public class User1Controller {
         }else{
             return ME12;
         }
-    }
+    }*/
 }
