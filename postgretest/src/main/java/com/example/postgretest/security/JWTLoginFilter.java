@@ -55,9 +55,9 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
                 
-                String s = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                /*String s = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
                 
-                System.out.println("Corpo da requisicao: "  + s + "\n\n\nFim" );
+                System.out.println("Corpo da requisicao: "  + s + "\n\n\nFim" );*/
                 
                 
                 AccountCredentials credentials = new ObjectMapper()

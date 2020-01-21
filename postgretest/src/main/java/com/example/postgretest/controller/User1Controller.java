@@ -10,7 +10,6 @@ import org.springframework.security.core.Authentication;
 import com.example.postgretest.repository.RedefinirSenhaTokenRepository;
 import com.example.postgretest.repository.DesbloqueioTokenRepository;
 import com.example.postgretest.service.EmailSenderService;
-import com.example.postgretest.Controller.Resposta;
 import com.example.postgretest.model.UsuarioUI;
 import com.example.postgretest.model.NormaUI;
 import com.example.postgretest.repository.UserRepository;
@@ -71,6 +70,7 @@ public class User1Controller {
         }
     }*/
 
+    //add role here
     @PostMapping("/hey")
     public @ResponseBody String teste(){
         return "Ola mundo";

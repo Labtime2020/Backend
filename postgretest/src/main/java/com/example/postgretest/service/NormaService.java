@@ -298,6 +298,7 @@ public class NormaService {
                         String msg;
 
                         for( int i = 0; i < normaObject.getUsuarios().size(); i++ ){
+                            System.out.println("Enviando email");
                             iterator = normaObject.getUsuarios().get(i);
 
                             msg = "Nome antigo: " + normaAntiga.getNome() 

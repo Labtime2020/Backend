@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
 
-import com.example.postgretest.Controller.Resposta;
+
 import com.example.postgretest.model.Usuario;
 import com.example.postgretest.model.UsuarioUI;
 import com.example.postgretest.repository.UserRepository;
@@ -48,19 +48,7 @@ public class UserController {
         
         this.storageService = storageService;
     }
-    
-    // @PostMapping(path="/addUser")
-    // //public @ResponseBody String insertUser(@RequestParam String nome, @RequestParam String email, @RequestParam String sobrenome, @RequestParam String password){
-    // public @ResponseBody Resposta insertData(@RequestBody UsuarioUI user){
-    //     if(userRepository.findByEmail(user.getEmail()).isEmpty()){
-    //         Usuario t = new Usuario(user.getId(), user.getNome(), user.getEmail(), user.getSobrenome(), user.getPassword(), false, 1);
-    //         t.setRegisterDate(new Date());/*falta converter para a data atual*/
-    //         userRepository.save(t);
-    //         return new Resposta(OK, "Usuario adicionado");
-    //     }
-    //     else
-    //         return new Resposta(USERJAEXISTE,"ME04_2 - Usuario com email " + user.getEmail() + " ja existe no sistema");
-    // }
+   
     
     @PostMapping(path="/updateMyData")
     public @ResponseBody Resposta updateMyData(Authentication auth, MultipartFile file, @RequestParam("usuario") String usuarioString,
