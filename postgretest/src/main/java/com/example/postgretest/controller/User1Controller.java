@@ -12,6 +12,7 @@ import com.example.postgretest.repository.DesbloqueioTokenRepository;
 import com.example.postgretest.service.EmailSenderService;
 import com.example.postgretest.model.UsuarioUI;
 import com.example.postgretest.model.NormaUI;
+import com.example.postgretest.model.UsuarioInfoUI;
 import com.example.postgretest.repository.UserRepository;
 import com.example.postgretest.repository.NormaRepository;
 
@@ -61,15 +62,6 @@ public class User1Controller {
         this.storageService = storageService;
     }
 
-    /*private void AtualizarEntrada(Authentication auth){
-        if(auth != null){
-            Usuario user = userRepository.findByEmail(auth.getName()).get(0);
-            user.atualizarEntrada();
-
-            userRepository.save(user);
-        }
-    }*/
-
     //add role here
     @PostMapping("/hey")
     public @ResponseBody String teste(){
@@ -77,306 +69,78 @@ public class User1Controller {
     }
 
     @PostMapping("/buscarusuariosonline")
-    public List<UsuarioUI> buscarusuariosonline(Authentication auth){    
+    public List<UsuarioInfoUI> buscarusuariosonline(Authentication auth){    
         return userService.buscarusuariosonline(auth, MA01);
     }
-    /*public List<UsuarioUI> buscarusuariosonline(Authentication auth){    
-        // AtualizarEntrada(auth);
-
-        List<Usuario> users = userRepository.findByOnline(true);
-
-        System.out.println(users.size());
-        List<UsuarioUI> list = new ArrayList<>();
-
-        Date now = new Date();
-
-        for(Usuario user: users){
-            long diff = now.getTime() - user.getLastInteractionDate();
-
-            System.out.println(diff + " x " + TEMPO_ONLINE);
-
-            if(diff <= TEMPO_ONLINE){
-                list.add(user.toUsuarioUI());
-            }
-            else{
-                user.setOnline(false);
-                userRepository.save(user);
-            }
-        }
-
-        return list;
-    }*/
-
+    
     @PostMapping("/buscarusuarioporemail")
-    public List<UsuarioUI> buscarusuarioporemail(Authentication auth, @RequestBody String email){
+    public List<UsuarioInfoUI> buscarusuarioporemail(Authentication auth, @RequestBody String email){
         return userService.buscarusuarioporemail(auth, email);
     }
-    /*public List<UsuarioUI> buscarusuarioporemail(Authentication auth, @RequestBody String email){    
-        AtualizarEntrada(auth);
 
-        List<Usuario> users = userRepository.findByEmailContaining(email);
-
-        System.out.println(users.size());
-        List<UsuarioUI> list = new ArrayList<>();
-
-        for(Usuario user: users){
-            list.add(user.toUsuarioUI());
-        }
-
-        return list;
-    }*/
 
     @PostMapping("/obteravatarusuario")
     @ResponseBody
     public ResponseEntity<Resource> obter_avatar_usuario(Authentication auth, @RequestBody UsuarioUI usuario) {
         return userService.obter_avatar_usuario(auth, usuario);
     }
-    /*public ResponseEntity<Resource> obter_avatar_usuario(Authentication auth, @RequestBody UsuarioUI usuario) {
-        AtualizarEntrada(auth);
-
-        Usuario user = userRepository.findByEmail(usuario.email).get(0);
-
-        Resource file = storageService.loadAsResource(user.getAvatar());
-
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-    }*/
+    
 
     @PostMapping("/obterminhaavatar")
     public ResponseEntity<Resource> obter_minha_avatar(Authentication auth){
         return userService.obter_minha_avatar(auth);
     }
-    /*public ResponseEntity<Resource> obter_minha_avatar(Authentication auth){
-        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
-
-        Resource file = storageService.loadAsResource(user.getAvatar());
-
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-    }*/
 
     @PostMapping("/cadastrar")
     public Resposta createUser(Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
         @RequestParam("usuario") String usuarioString) throws JsonProcessingException{
         return userService.cadastrar(auth, file, usuarioString);
     }
-    /*public Resposta cadastrar(Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
-        @RequestParam("usuario") String usuarioString) 
-            throws JsonProcessingException{
-        AtualizarEntrada(auth);
-
-        ObjectMapper mapper = new ObjectMapper();
-        
-        UsuarioUI usuario = mapper.readValue(usuarioString, UsuarioUI.class);
-
-    	System.out.println("Cadastrando Usuario");
-
-    	List<Usuario> users = userRepository.findByEmail(usuario.email);
-    	
-    	if(users.size() > 0){
-    		return new Resposta(USERJAEXISTE, ME04_2);
-    	}else{
-    		Usuario nuser = new Usuario(123, usuario.nome, usuario.email, usuario.sobrenome, usuario.password, usuario.isAdmin, ATIVO);
-
-    		List<Usuario> test = userRepository.findAllByOrderByNome();
-	
-			if(test.size() == 0){
-				nuser.setIsAdmin(true);
-
-				nuser.setAdminBeginDate(new Date());
-			}	
-
-            nuser.setRegisterDate(new Date());
-
-            nuser.setAvatar("avatar_not_found.jpg");
-
-            if(file != null)
-                nuser.setAvatar("avatar_" + usuario.email + "." 
-                        + storageService.getExtensao(file.getOriginalFilename()));
-
-            userRepository.save(nuser);
-
-            try{
-                if(file != null)
-                    storageService.salvar(file, nuser.getAvatar());
-            }catch(Exception ex){
-                return new Resposta(ERRO, "Falha ao salvar avatar");
-            }
-
-    		return new Resposta(OK, MS01);
-    	}
-    }*/
 
     @PostMapping("/adicionarfavorito")
     public Resposta addFavorite(Authentication auth, @RequestBody NormaUI norma){
         //atualizar entrada
         return userService.adicionar_favorito(auth, norma);
     }
-    /*public Resposta adicionar_favorito(Authentication auth, @RequestBody NormaUI norma){
-        AtualizarEntrada(auth);
-
-        try{
-            Norma nor = normaRepository.findByNome(norma.nome).get();
-            System.out.println("aqui");
-            System.out.println(auth.getName()+"\n\n\n\n\n\n");
-            Usuario user = userRepository.findByEmail(auth.getName()).get(0);
-            user.getFavoritos().add(nor);
-            userRepository.save(user);
-        }catch(Exception e){
-            System.out.println("erro" + e.getMessage());
-        }
-        return new Resposta(OK, "favoritado com sucesso");
-    }*/
 
     @PostMapping("/removerfavorito")
     public Resposta remover_favorito(Authentication auth, @RequestBody NormaUI norma){
         return userService.remover_favorito(auth, norma);
     }
-    /*public Resposta remover_favorito(Authentication auth, @RequestBody NormaUI norma){
-        AtualizarEntrada(auth);
-
-        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
-
-        for(int i = 0 ; i < user.getFavoritos().size() ; i++){
-            System.out.println(user.getFavoritos().get(i).getNome() + " == " + norma.nome);
-
-            if(user.getFavoritos().get(i).getNormaId() == norma.normaId){
-                 System.out.println("removendo...");
-                user.getFavoritos().remove(i);
-                break;
-            }
-        }
-
-        userRepository.save(user);
-
-        return new Resposta(OK, "desfavoritado com sucesso");
-    }*/
 
     @PostMapping("/listarfavoritos")
     public List<NormaUI> listarfavoritos(Authentication auth){
         return userService.listarfavoritos(auth);
     }
-    /*public List<NormaUI> listarfavoritos(Authentication auth){
-        AtualizarEntrada(auth);
-
-        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
-
-        List<NormaUI> favoritos = new ArrayList<>();
-
-        for(Norma norma: user.getFavoritos()){
-            favoritos.add(new NormaUI(norma.getNormaId(), norma.getNome(), norma.getDescricao(), norma.getUrl(), norma.isIsActive(), norma.getVisualizacao(), norma.getDownload()));
-        }
-
-        return favoritos;
-    }*/
+    
 
     @GetMapping("/buscarusuarios")
-    public List<UsuarioUI> buscarusuarios(Authentication auth){
+    public List<UsuarioInfoUI> buscarusuarios(Authentication auth){
         return userService.buscarusuarios(auth);
     }
-    /*public List<UsuarioUI> buscarusuarios(Authentication auth){
-        AtualizarEntrada(auth);
-
-    	System.out.println("Buscando todos os usuarios");
-
-    	List<Usuario> users = userRepository.findAllByOrderByNome();
-    	List<UsuarioUI> usuarios = new ArrayList<>();
-
-    	for(Usuario user: users){
-    		usuarios.add(user.toUsuarioUI());
-    	}
-
-    	return usuarios;
-    }*/
+    
 
     @PostMapping("/recuperarsenha")
     public Resposta recuperarsenha(Authentication auth, @RequestBody String email){
         return userService.recuperarsenha(auth, email);
     }
-    /*public Resposta recuperarsenha(Authentication auth, @RequestBody String email){
-        AtualizarEntrada(auth);
-
-        List< Usuario > user = userRepository.findByEmail(email);
-
-        if(user.size() == 0){
-            return new Resposta(ERRO, "nao existe usuario cadastrado para esse email");
-        }
-
-        Optional< RedefinirSenhaToken > token = redefinirSenhaTokenRepository.findByUserId(user.get(0).getId());
-
-        if(!token.isEmpty()){
-            redefinirSenhaTokenRepository.delete(token.get());
-        }
-
-        emailSenderService.sendRedefinirSenhaToken(user.get(0));
-        
-        return new Resposta(OK, "um email foi enviado com as instrucoes para redefinicao de senha");
-    }*/
+    
 
     @GetMapping("/redefinirsenha")
     public Resposta redefinirsenha(Authentication auth, HttpServletResponse response, @RequestParam("token")String mtoken){
         return userService.redefinirsenha(auth, response, mtoken);
     }
-    /*public Resposta redefinirsenha(Authentication auth, HttpServletResponse response, @RequestParam("token")String mtoken){
-        AtualizarEntrada(auth);
-
-        RedefinirSenhaToken token = redefinirSenhaTokenRepository.findByRedefinirSenhaToken(mtoken);
-
-        if(token != null){
-            TokenAuthenticationService.addAuthentication(response, token.getUsuario().getEmail(), 
-                AuthorityUtils.createAuthorityList("ROLE_USER"));//passe um token de autenticacao
-
-            return new Resposta(OK, "Token retornado no header");
-        }else{
-            return new Resposta(ERRO, "token invalido");
-        }
-    }*/
+    
 
     @PostMapping(path="/alterarsenha")
     public @ResponseBody Resposta alterarsenha(Authentication auth, @RequestBody String novaSenha){
         return userService.alterarsenha(auth, novaSenha);
     }
-    /*public @ResponseBody Resposta alterarsenha(Authentication auth, @RequestBody String novaSenha){//precisa de autenticacao...
-        AtualizarEntrada(auth);
-        System.out.println(auth.getName() + " eh o email");
-
-        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
-
-        System.out.println(user.getPassword() + " == " + novaSenha);
-
-        if(user.getPassword().equals(novaSenha)){
-            return new Resposta(MESMASENHA, ME19);
-        }
-        
-
-        user.setPassword(novaSenha);
-
-        userRepository.save(user);
-
-        return new Resposta(OK, MS01 + "senha atualizada com sucesso");
-    }*/
+    
 
     @GetMapping("/desbloquear")
     public String desbloquear(Authentication auth, @RequestParam("token")String desbloqueioToken){
         return userService.desbloquear(auth, desbloqueioToken);
     }
-    /*public String desbloquear(Authentication auth, @RequestParam("token")String desbloqueioToken){
-        AtualizarEntrada(auth);
-        DesbloqueioToken token = desbloqueioTokenRepository.findByDesbloqueioToken(desbloqueioToken);
-
-        if(token != null){
-            Usuario user = userRepository.findByEmail(token.getUsuario().getEmail()).get(0);
-            
-            if(user.getTentativaErrada() < MAX_NUM_TENTATIVAS){
-                return ME11;
-            }
-
-            user.zerarTentativaErrada();
-            userRepository.save(user);
-
-            return MS02;
-        }else{
-            return ME12;
-        }
-    }*/
+    
 }

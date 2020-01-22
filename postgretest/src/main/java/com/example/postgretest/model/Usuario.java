@@ -97,7 +97,11 @@ public class Usuario implements Serializable{
     public UsuarioUI toUsuarioUI(){
         return new UsuarioUI(this.getId(), this.getEmail(), this.getNome(), this.getSobrenome(),
                 this.getIsAdmin(), this.getPassword(), this.getStatus());
-    }   
+    }
+    public UsuarioInfoUI toUsuarioInfoUI(){
+        return new UsuarioInfoUI(this.getId(), this.getEmail(), this.getNome(), this.getSobrenome(), this.getIsAdmin(),
+        this.getStatus());
+    }
 
     public void atualizarEntrada(){
         this.setLastInteractionDate(new Date());

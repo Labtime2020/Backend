@@ -11,6 +11,7 @@ import com.example.postgretest.model.Norma;
 import com.example.postgretest.model.NormaUI;
 import com.example.postgretest.model.RedefinirSenhaToken;
 import com.example.postgretest.model.Usuario;
+import com.example.postgretest.model.UsuarioInfoUI;
 import com.example.postgretest.model.UsuarioUI;
 import com.example.postgretest.repository.DesbloqueioTokenRepository;
 import com.example.postgretest.repository.NormaRepository;
@@ -241,16 +242,19 @@ public class UserService {
     
     public @ResponseBody Resposta updateUserStatus(Authentication auth, UsuarioUI user){
         
-        if( user.getEmail() == null || user.getStatus() > 1 || user.getStatus() < -1 ){
+        if( user.getEmail() == null || user.getStatus() > 2 || user.getStatus() < -1 ){
                 return new Resposta(ERRO, JSONINVALIDO);
         }
+        
         List<Usuario> userChk = userRepository.findByEmail(user.getEmail());
         if( userChk.isEmpty() ){
             return new Resposta(SEMUSER, ME_C_2);
         }
         else{
             Usuario usuariolog = userRepository.findByEmail(auth.getName()).get(0);
-
+            if( usuariolog.getStatus() == 1 && user.getStatus() == 1 )
+                return new Resposta(ATIVO, ME_C_5);
+            
             usuariolog.atualizarEntrada();
             userRepository.save(usuariolog);
 
@@ -294,24 +298,25 @@ public class UserService {
             userRepository.save(user);
         }
     }
-    public List<UsuarioUI> buscarusuariosonline(Authentication auth, String email){    
+    public List<UsuarioInfoUI> buscarusuariosonline(Authentication auth, String email){    
         // AtualizarEntrada(auth);
 
         List<Usuario> users = userRepository.findByOnline(true);
 
         System.out.println(users.size());
-        List<UsuarioUI> list = new ArrayList<>();
+        List<UsuarioInfoUI> list = new ArrayList<>();
 
         Date now = new Date();
 
         for(Usuario user: users){
             long diff = 0;
+            //long diff = now.getTime() - user.getLastInteractionDate();
             //long diff = now.getTime() - user.getLastInteractionDate().getTime();
 
             System.out.println(diff + " x " + TEMPO_ONLINE);
 
             if(diff <= TEMPO_ONLINE){
-                list.add(user.toUsuarioUI());
+                list.add(user.toUsuarioInfoUI());
             }
             else{
                 user.setOnline(false);
@@ -369,16 +374,16 @@ public class UserService {
     	}
     }
     
-    public List<UsuarioUI> buscarusuarioporemail(Authentication auth, String email){    
+    public List<UsuarioInfoUI> buscarusuarioporemail(Authentication auth, String email){    
         AtualizarEntrada(auth);
 
         List<Usuario> users = userRepository.findByEmailContaining(email);
 
         System.out.println(users.size());
-        List<UsuarioUI> list = new ArrayList<>();
+        List<UsuarioInfoUI> list = new ArrayList<>();
 
         for(Usuario user: users){
-            list.add(user.toUsuarioUI());
+            list.add(user.toUsuarioInfoUI());
         }
 
         return list;
@@ -454,16 +459,20 @@ public class UserService {
         return favoritos;
     }
     
-    public List<UsuarioUI> buscarusuarios(Authentication auth){
+    public List<UsuarioInfoUI> buscarusuarios(Authentication auth){
         AtualizarEntrada(auth);
+        int i = 0;
 
     	System.out.println("Buscando todos os usuarios");
 
     	List<Usuario> users = userRepository.findAllByOrderByNome();
-    	List<UsuarioUI> usuarios = new ArrayList<>();
+    	List<UsuarioInfoUI> usuarios = new ArrayList<>();
 
     	for(Usuario user: users){
-    		usuarios.add(user.toUsuarioUI());
+            //implementar em arvore se sobrar tempo*/
+            if(users.get(i).getEmail().equals(auth.getName()) == false)//insira todos na lista exceto o primeiro
+    		usuarios.add(user.toUsuarioInfoUI());
+            i++;
     	}
 
     	return usuarios;

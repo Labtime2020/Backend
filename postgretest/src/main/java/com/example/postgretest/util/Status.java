@@ -23,6 +23,7 @@ public final class Status{
         public static final String ME_C_2 = "Uusario inexistente";
         public static final String ME_C_3 = "Nao eh possivel alterar informacoes de outro usuario";
         public static final String ME_C_4 = "Tamanho de arquivo nao permitido";
+        public static final String ME_C_5 = "Usuario ja esta ativado";
         public static final String ME01 = "Erro";
         public static final String ME04_2 = "Email ja foi cadastrado por outro usuario";
         public static final String ME05 = "Unico administrador do sistema";
