@@ -37,8 +37,9 @@ import static com.example.postgretest.util.Status.*;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
-
+@CrossOrigin(origins="http://192.168.50.29:4200", allowedHeaders = "*")
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
     private EmailSenderService emailSenderService;
     private UserRepository userRepository;
@@ -88,6 +89,11 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, Authentication auth)
 		throws IOException, ServletException {
+                /*//aa
+                response.addHeader("Access-Control-Expose-Headers", "Authorization");
+                //bb
+                response.addHeader("Access-Control-Allow-Headers", ME01);
+                response.addHeader("Access-Control-Allow-Origin", "*");*/
 		TokenAuthenticationService.addAuthentication(response, auth.getName(), auth.getAuthorities());
 	}
 

@@ -60,11 +60,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.addFilterBefore(new JWTAuthenticationFilter(),
 				UsernamePasswordAuthenticationFilter.class);
                                 
-                HttpSecurity.cors().disable();//desabilitando cors no servidor!
+                
         }
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService);
 	}
+
 }

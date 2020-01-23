@@ -27,6 +27,7 @@ import static com.example.postgretest.util.Status.OK;
 import static com.example.postgretest.util.Status.SEMUSER;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -130,7 +131,7 @@ public class NormaService {
     @PostMapping(path="/obterArquivoNorma")
     public ResponseEntity<Resource> obterArquivoNorma(Authentication auth, @RequestBody NormaUI norma){
         AtualizarEntrada(auth);
-
+        
         Optional<Norma> n1 = normaRepository.findByNormaId(norma.getNormaId());
         if( n1.isEmpty() == false ){
             Resource file = storageService.loadAsResource(n1.get().getArquivo());
@@ -166,10 +167,19 @@ public class NormaService {
 
     @PostMapping(path="/addNorma")
     public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
-            @RequestParam("norma") String n1 ) throws JsonProcessingException{
+            @RequestParam("norma") String n1, @RequestParam("checksum") String checksum ) throws JsonProcessingException, IOException{
+        
         AtualizarEntrada(auth);
+        
+//        String recievedFileChecksum = storageService.computeFileSHA1(file);
+//        
+//        System.out.println(recievedFileChecksum);
+        
+        List<Usuario> usuarioLogado = userRepository.findByEmail(auth.getName());
+        
+        if( usuarioLogado.isEmpty() == true)
+            return new Resposta(ERRO, "Nenhum usuario logado");
 
-       /*com tempo, adicionar AQUI perfil de seguranca para permitir somente administradores*/
         ObjectMapper obj = new ObjectMapper();
         
         NormaUI norma = obj.readValue(n1, NormaUI.class);

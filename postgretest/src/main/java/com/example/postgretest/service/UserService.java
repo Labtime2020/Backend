@@ -72,6 +72,7 @@ public class UserService {
     }
     
     
+    
     private boolean isAdmin( Authentication auth ) throws Exception{
         List<Usuario> users = userRepository.findByEmail(auth.getName());
         if( users.isEmpty() )
@@ -135,6 +136,10 @@ public class UserService {
         ObjectMapper mapper = new ObjectMapper();
         UsuarioUI user = mapper.readValue(usuarioString, UsuarioUI.class);
 
+        if(user.getId() == null){
+            return new Resposta(JSONINCORRETO, JSONINVALIDO );
+        }
+        
         Usuario usuarioLogado = userRepository.findByEmail(auth.getName()).get(0);
 
         usuarioLogado.atualizarEntrada();
@@ -147,11 +152,17 @@ public class UserService {
         if( c.isEmpty() ){
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este email!");
         }
-        /*
-        else if( c.get().getEmail().equals(user.getEmail()) == false){ //ja existe user com email fornecido, abortar
+        
+        else if( 
+                user.getEmail() != null && 
+                    (c.get().getEmail().equals(user.getEmail()) == false 
+                    && userRepository.findByEmail(user.getEmail()).isEmpty() == false
+                    )
+                )
+        { //se usuario quer mudar de email, mas email esta linkado a outro usuario, aborte!
             System.out.println(c.get().getEmail() + " Este usuario ja existe no sistema ");
             return new Resposta(USERJAEXISTE, ME04_2);
-        }*/
+        }
         try{
             a = c.get();
             a.setEmail(user.getEmail());
@@ -159,17 +170,18 @@ public class UserService {
                 a.setNome(user.getNome());
             if( user.getSobrenome() != null &&( !user.getSobrenome().isBlank() || !user.getSobrenome().isEmpty() ) )
                 a.setSobrenome(user.getSobrenome());
-            a.setAvatar("avatar_" + user.email + "." 
+            if( file != null )
+                a.setAvatar("avatar_" + user.email + "." 
                         + storageService.getExtensao(file.getOriginalFilename()));
 
             userRepository.save(a);
-
-            try{
-                storageService.salvar(file, a.getAvatar());
-            }catch(Exception ex){
-                return new Resposta(ERRO, "Falha ao salvar avatar");
+            if( file != null ){
+                try{
+                    storageService.salvar(file, a.getAvatar());
+                }catch(Exception ex){
+                    return new Resposta(ERRO, "Falha ao salvar avatar");
+                }
             }
-
             System.out.println(a.getId());
         }catch(Exception e){
             return new Resposta(ERRO, e.toString());
@@ -187,7 +199,11 @@ public class UserService {
             e.getMessage();
         }
         
-        List<Usuario> c = userRepository.findByEmail(user.getEmail());
+        if(user.getId() == null){
+            return new Resposta(JSONINCORRETO, JSONINVALIDO );
+        }
+        
+        Optional<Usuario> c = userRepository.findById(user.getId());
         
         if( c.isEmpty() )
             return new Resposta(SEMUSER, "Nao foi encontrado usuario com este id!");
@@ -197,13 +213,20 @@ public class UserService {
         usuariolog.atualizarEntrada();
         userRepository.save(usuariolog);
 
-        a = c.get(0);
-        a.setIsAdmin(true);
-        a.setAdminBeginDate(new Date());
-        a.setAdminEndDate(null);
-        userRepository.save(a);
-      
-        return new Resposta(OK, "Usuario agora eh um administrador!");
+       
+        
+        a = c.get();
+        if( a.getIsAdmin() == true ){
+             return new Resposta(JA_ADMIN, ME_C_7);
+        }
+        else{
+            a.setIsAdmin(true);
+            a.setAdminBeginDate(new Date());
+            a.setAdminEndDate(null);
+            userRepository.save(a);
+
+            return new Resposta(OK, "Usuario agora eh um administrador!");
+        }
     }
     
     public @ResponseBody Resposta removeAdmin(Authentication auth, UsuarioUI user){
@@ -213,6 +236,11 @@ public class UserService {
         }
         catch(Exception e){
             e.getMessage();
+        }
+        //aqui vem um metodo de checagem de json
+        
+        if(user.getId() == null){
+            return new Resposta(JSONINCORRETO, JSONINVALIDO );
         }
         
         b = userRepository.findById(user.id);
@@ -231,7 +259,7 @@ public class UserService {
         userlog.atualizarEntrada();
         userRepository.save(userlog);
 
-        a = userRepository.findByEmail(user.email).get(0);
+        a = b.get();
         a.setIsAdmin(false);
         a.setAdminEndDate(new Date());
         a.atualizarEntrada();
@@ -242,11 +270,11 @@ public class UserService {
     
     public @ResponseBody Resposta updateUserStatus(Authentication auth, UsuarioUI user){
         
-        if( user.getEmail() == null || user.getStatus() > 2 || user.getStatus() < -1 ){
+        if( user.getId() == null || user.getStatus() > 2 || user.getStatus() < -1 ){
                 return new Resposta(ERRO, JSONINVALIDO);
         }
         
-        List<Usuario> userChk = userRepository.findByEmail(user.getEmail());
+        Optional<Usuario> userChk = userRepository.findById(user.getId());
         if( userChk.isEmpty() ){
             return new Resposta(SEMUSER, ME_C_2);
         }
@@ -258,9 +286,9 @@ public class UserService {
             usuariolog.atualizarEntrada();
             userRepository.save(usuariolog);
 
-            Usuario usuario = userChk.get(0);
+            Usuario usuario = userChk.get();
             if( user.getStatus() == 0 ){
-                if( auth.getName() == user.getEmail() ){//usuario esta querendo se auto desativar
+                if( auth.getName() == user.getEmail() ){//usuario esta querendo se auto bloquear
                     return new Resposta(ERRO, ME22);
                 }
                 else if( userRepository.findByIsAdmin(true).size() == 1
@@ -271,12 +299,13 @@ public class UserService {
                     usuario.setIsAdmin(false);
                     usuario.setAdminEndDate(new Date());
                 }
-                else
-                    usuario.setStatus(0);
+                usuario.setStatus(user.getStatus());
             }
-            else{/*ativar usuario*/
-                usuario.setStatus(1);
+            /*FALTA TRATAR UMAS QUESTOES SOBRE OS ESTADOS ANTIGOS DO USUARIO*/ 
+            else{//ativar ou inativar o usuario STATUS 1 OU 2
+                usuario.setStatus(user.getStatus());
             }
+            
             userRepository.save(usuario);
             
             return new Resposta(OK, MS01);
@@ -342,7 +371,16 @@ public class UserService {
     	
     	if(users.size() > 0){
     		return new Resposta(USERJAEXISTE, ME04_2);
-    	}else{
+                
+    	}
+        else if(
+                usuario.getEmail() == null 
+                || usuario.getNome() == null
+                || usuario.getSobrenome() == null 
+                ){
+            return new Resposta(JSONINCORRETO, JSONINVALIDO);
+        }
+        else{
     		Usuario nuser = new Usuario(123, usuario.nome, usuario.email, usuario.sobrenome, usuario.password, usuario.isAdmin, ATIVO);
 
     		List<Usuario> test = userRepository.findAllByOrderByNome();
@@ -392,16 +430,35 @@ public class UserService {
     public ResponseEntity<Resource> obter_avatar_usuario(Authentication auth, UsuarioUI usuario) {
         AtualizarEntrada(auth);
 
-        Usuario user = userRepository.findByEmail(usuario.email).get(0);
+        if(usuario.id == null){
+            return null;
+        }
+        try{
+            Usuario user = userRepository.findById(usuario.id).get();
 
-        Resource file = storageService.loadAsResource(user.getAvatar());
+            Resource file = storageService.loadAsResource(user.getAvatar());
 
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        }
+        catch(Exception e){
+            System.out.println("Falha ao obter usuario pelo id fornecido");
+            e.printStackTrace();
+            return null;
+        }
     }
     
     public ResponseEntity<Resource> obter_minha_avatar(Authentication auth){
-        Usuario user = userRepository.findByEmail(auth.getName()).get(0);
+        
+        List <Usuario> usuarioLogado = userRepository.findByEmail(auth.getName());
+        
+        if( usuarioLogado.isEmpty() )
+            return null;
+        
+        AtualizarEntrada(auth);
+        
+        
+        Usuario user = usuarioLogado.get(0);
 
         Resource file = storageService.loadAsResource(user.getAvatar());
 
@@ -412,8 +469,10 @@ public class UserService {
     public Resposta adicionar_favorito(Authentication auth, NormaUI norma){
         AtualizarEntrada(auth);
 
+        
         try{
-            Norma nor = normaRepository.findByNome(norma.nome).get();
+            //Norma nor = normaRepository.findByNome(norma.nome).get();
+            Norma nor = normaRepository.findByNormaId(norma.normaId).get();
             System.out.println("aqui");
             System.out.println(auth.getName()+"\n\n\n\n\n\n");
             Usuario user = userRepository.findByEmail(auth.getName()).get(0);
@@ -421,6 +480,7 @@ public class UserService {
             userRepository.save(user);
         }catch(Exception e){
             System.out.println("erro" + e.getMessage());
+            return new Resposta(ERRO, "falha ao favoritar");
         }
         return new Resposta(OK, "favoritado com sucesso");
     }

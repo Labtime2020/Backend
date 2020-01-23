@@ -17,6 +17,7 @@ public final class Status{
         public static final int NORMA_INEXISTENTE = 12;
         public static final int MESMASENHA = 13;
         public static final int NOTADMIN = 14;
+        public static final int JA_ADMIN = 15;
         public static final String JSONINVALIDO = "Campos obrigatorios JSON nulos!!!";
         public static final String ME_C_0 = "Norma inexistente";
         public static final String ME_C_1 = "Usuario nao e admin!";
@@ -24,6 +25,7 @@ public final class Status{
         public static final String ME_C_3 = "Nao eh possivel alterar informacoes de outro usuario";
         public static final String ME_C_4 = "Tamanho de arquivo nao permitido";
         public static final String ME_C_5 = "Usuario ja esta ativado";
+        public static final String ME_C_7 = "Usuario ja eh admin";
         public static final String ME01 = "Erro";
         public static final String ME04_2 = "Email ja foi cadastrado por outro usuario";
         public static final String ME05 = "Unico administrador do sistema";

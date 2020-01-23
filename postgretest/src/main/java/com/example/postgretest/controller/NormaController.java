@@ -25,6 +25,7 @@ import com.example.postgretest.service.NormaService;
 import com.example.postgretest.storage.FileSystemStorageService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.Optional;
@@ -169,8 +170,8 @@ public class NormaController {
 
     @PostMapping(path="/addNorma")
     public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
-            @RequestParam("norma") String n1 ) throws JsonProcessingException{
-        return normaService.addNorma(auth, file, n1);
+            @RequestParam("norma") String n1, @RequestParam(value="checksum", required=false) String checksum ) throws JsonProcessingException, IOException{
+        return normaService.addNorma(auth, file, n1, checksum);
     }
     /*public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
             @RequestParam("norma") String n1 ) throws JsonProcessingException{
