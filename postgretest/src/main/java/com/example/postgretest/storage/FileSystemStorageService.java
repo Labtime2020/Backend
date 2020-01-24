@@ -12,6 +12,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.stream.Stream;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -23,6 +24,7 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @Service
 public class FileSystemStorageService implements StorageService {
 
@@ -32,7 +34,12 @@ public class FileSystemStorageService implements StorageService {
 	public FileSystemStorageService(StorageProperties properties) {
 		this.rootLocation = Paths.get(properties.getLocation());
 	}
-        public String computeFileSHA1( MultipartFile file ) throws IOException
+        public static String toSHA1(byte[] convertme) throws NoSuchAlgorithmException {
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            return Base64.getEncoder().encodeToString(md.digest(convertme));
+        }
+        
+        public String toSHA1( MultipartFile file ) throws IOException
         {
             String sha1 = null;
             MessageDigest digest;

@@ -97,7 +97,12 @@ public class Norma {
     public NormaUI toNormaUI(){
         System.out.println("Qtde de visualizacoes>>>> " + this.visualizacao);
         NormaUI norm = new NormaUI(this.getNormaId(), this.getNome(), this.getDescricao(), this.getUrl(), this.isIsActive(), this.getVisualizacao(), this.getDownload());
-
+        
+        if( this.arquivo != null )
+            norm.temArquivo = true;
+        else
+            norm.temArquivo = false;
+        
         for(Tag tag: this.getTags()){
             norm.tags.add(tag.getNome());
         }

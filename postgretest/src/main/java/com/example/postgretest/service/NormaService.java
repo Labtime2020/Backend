@@ -6,6 +6,7 @@
 package com.example.postgretest.service;
 
 import com.example.postgretest.Controller.Resposta;
+import com.example.postgretest.exception.FileIntegrityException;
 import com.example.postgretest.model.Norma;
 import com.example.postgretest.model.NormaUI;
 import com.example.postgretest.model.Tag;
@@ -27,6 +28,7 @@ import static com.example.postgretest.util.Status.OK;
 import static com.example.postgretest.util.Status.SEMUSER;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,11 +42,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -98,7 +102,7 @@ public class NormaService {
     }
 
     @PostMapping("/filtrarnormas")
-    public Set<NormaUI> filtrarnormas(Authentication auth, @RequestBody TagUI tags){
+    public Set<NormaUI> filtrarnormas(Authentication auth, TagUI tags){
         AtualizarEntrada(auth);
 
         Set<NormaUI> normas = new TreeSet<>();
@@ -129,7 +133,7 @@ public class NormaService {
     }
 
     @PostMapping(path="/obterArquivoNorma")
-    public ResponseEntity<Resource> obterArquivoNorma(Authentication auth, @RequestBody NormaUI norma){
+    public ResponseEntity<Resource> obterArquivoNorma(Authentication auth, NormaUI norma){
         AtualizarEntrada(auth);
         
         Optional<Norma> n1 = normaRepository.findByNormaId(norma.getNormaId());
@@ -146,7 +150,7 @@ public class NormaService {
     }
 
     @PostMapping(path="/visualizarNorma")
-    public /*ResponseEntity<Void>*/ String visualizarNorma(Authentication auth, @RequestBody NormaUI norma){
+    public /*ResponseEntity<Void>*/ String visualizarNorma(Authentication auth, NormaUI norma){
         AtualizarEntrada(auth);
 
         Optional<Norma> nrm = normaRepository.findByNormaId(norma.getNormaId());
@@ -166,14 +170,10 @@ public class NormaService {
     }
 
     @PostMapping(path="/addNorma")
-    public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
-            @RequestParam("norma") String n1, @RequestParam("checksum") String checksum ) throws JsonProcessingException, IOException{
+    public @ResponseBody Resposta addNorma( Authentication auth, MultipartFile file,
+            String n1, String checksum ) throws JsonProcessingException, IOException, Exception{
         
         AtualizarEntrada(auth);
-        
-//        String recievedFileChecksum = storageService.computeFileSHA1(file);
-//        
-//        System.out.println(recievedFileChecksum);
         
         List<Usuario> usuarioLogado = userRepository.findByEmail(auth.getName());
         
@@ -183,6 +183,7 @@ public class NormaService {
         ObjectMapper obj = new ObjectMapper();
         
         NormaUI norma = obj.readValue(n1, NormaUI.class);
+        
         //mapeamento feito com sucesso!
     
         normaChk = normaRepository.findByNome(norma.getNome());
@@ -203,6 +204,7 @@ public class NormaService {
                 return new Resposta(SEMUSER, "Nenhum usuario com este ID");
             
             else{
+                
                 Norma normaObject = new Norma(norma.getNormaId(), norma.getNome(), 
                     norma.getDescricao(), norma.getUrl(), new Date(), null, userChk.get(0), userChk.get(0), true, 0, 0);
 
@@ -219,8 +221,19 @@ public class NormaService {
 
                     normaObject.getTags().add(tg);
                 }
+               
 
                 if(file != null && file.isEmpty() == false){
+                    
+                    if(checksum != null){
+                        String recievedFileChecksum = storageService.toSHA1(file);
+                        System.out.println(recievedFileChecksum);
+                        if(checksum.equals(recievedFileChecksum.toUpperCase()) == false){
+                            System.out.println("Checksum diferente!");
+                            throw new FileIntegrityException();
+                        }
+                    }
+                    
                    normaObject.setArquivo(normaObject.getNormaName_File() + "." +
                     storageService.getExtensao(file.getOriginalFilename()));
                 }
@@ -241,12 +254,15 @@ public class NormaService {
     
     @PostMapping(path="/updateNorma")
     public @ResponseBody Resposta updateNorma( Authentication auth,
-            @RequestParam(name="file", required=false) MultipartFile file ,
-            @RequestParam("norma") String n1 ) throws JsonProcessingException{
+            MultipartFile file ,
+             String n1,
+            String checksum) throws JsonProcessingException{
         AtualizarEntrada(auth);
 
         ObjectMapper obj = new ObjectMapper();
         NormaUI norma = obj.readValue(n1, NormaUI.class);
+        
+        /*EH POSSIVEL CHECAR SE ARQUIVO FOI MUDADO, MAS PARA ISSO EH PRECISO PERSISTIR O CHECKSUM NO BANCO DE DADOS*/
         
         normaChk = normaRepository.findByNormaId(norma.getNormaId());
         if( normaChk.isEmpty() ){
@@ -298,6 +314,16 @@ public class NormaService {
                     System.out.println(normaObject.getTags().size() + " Eh o numero de tags!!!!!!!");
 
                     if( file != null && file.isEmpty() == false ){
+                        
+                        if(checksum != null){
+                            String recievedFileChecksum = storageService.toSHA1(file);
+                            System.out.println(recievedFileChecksum);
+                            if(checksum.equals(recievedFileChecksum.toUpperCase()) == false){
+                                System.out.println("Checksum diferente!");
+                                throw new FileIntegrityException();
+                            }
+                        }
+                        
                         normaObject.setArquivo(normaObject.getNormaName_File() + "." +
                                                storageService.getExtensao(file.getOriginalFilename())
                         );
@@ -340,7 +366,7 @@ public class NormaService {
     }
     
     @PostMapping(path="/updateNormaStatus")
-    public @ResponseBody Resposta updateStatus( Authentication auth, @RequestBody NormaUI norma){
+    public @ResponseBody Resposta updateStatus( Authentication auth, NormaUI norma){
         AtualizarEntrada(auth);
 
         Optional<Norma> n = normaRepository.findByNormaId(norma.getNormaId());

@@ -25,6 +25,7 @@ import com.example.postgretest.service.NormaService;
 import com.example.postgretest.storage.FileSystemStorageService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -33,11 +34,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestController
-public class NormaController {
+public class NormaController extends ResponseEntityExceptionHandler{
     @Autowired
     TagRepository tagRepository;
     @Autowired
@@ -167,12 +171,25 @@ public class NormaController {
             return n0.getUrl();
         }
     }*/
+    
+    
 
     @PostMapping(path="/addNorma")
     public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
             @RequestParam("norma") String n1, @RequestParam(value="checksum", required=false) String checksum ) throws JsonProcessingException, IOException{
-        return normaService.addNorma(auth, file, n1, checksum);
+        
+        try{
+            Resposta resp = normaService.addNorma(auth, file, n1, checksum);
+            return resp;
+        }
+        catch(Exception e){
+            return null;
+        }
+        
     }
+    
+    
+
     /*public @ResponseBody Resposta addNorma( Authentication auth, @RequestParam(name="file", required=false) MultipartFile file,
             @RequestParam("norma") String n1 ) throws JsonProcessingException{
         AtualizarEntrada(auth);
@@ -240,8 +257,9 @@ public class NormaController {
     @PostMapping(path="/updateNorma")
     public @ResponseBody Resposta updateNorma( Authentication auth,
             @RequestParam(name="file", required=false) MultipartFile file ,
-            @RequestParam("norma") String n1 ) throws JsonProcessingException{
-        return normaService.updateNorma(auth, file, n1);
+            @RequestParam("norma") String n1,
+            @RequestParam(name="checksum", required=false) String checksum) throws JsonProcessingException{
+        return normaService.updateNorma(auth, file, n1, checksum);
     }
     /*public @ResponseBody Resposta updateNorma( Authentication auth,
             @RequestParam(name="file", required=false) MultipartFile file ,

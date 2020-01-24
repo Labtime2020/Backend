@@ -22,6 +22,7 @@ public class NormaUI implements Comparable<NormaUI>{
     public List< String > tags = new ArrayList<>();
     public int visualizacao;
     public int download;
+    public boolean temArquivo;
 
     public NormaUI(long normaId, String nome, String descricao, String url, boolean isActive, int visualizacao, int download) {
         this.normaId = normaId;
@@ -33,6 +34,19 @@ public class NormaUI implements Comparable<NormaUI>{
         this.isActive = isActive;
         this.visualizacao = visualizacao;
         this.download = download;
+    }
+    
+    public NormaUI(long normaId, String nome, String descricao, String url, boolean isActive, int visualizacao, int download, boolean temArquivo) {
+        this.normaId = normaId;
+        this.nome = nome;
+        this.descricao = descricao;
+        //this.creationUser = creationUser;
+        //this.deletionUser = deletionUser;
+        this.url = url;
+        this.isActive = isActive;
+        this.visualizacao = visualizacao;
+        this.download = download;
+        this.temArquivo = temArquivo;
     }
 
     public int compareTo(NormaUI norma){
@@ -47,11 +61,16 @@ public class NormaUI implements Comparable<NormaUI>{
             return 0;
         }
     }
+    
 
     public NormaUI() {
     }
-    
 
+    public boolean isTemArquivo() {
+        return temArquivo;
+    }
+    
+    
     public long getNormaId() {
         return normaId;
     }
@@ -91,6 +110,10 @@ public class NormaUI implements Comparable<NormaUI>{
 
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public void setTemArquivo(boolean temArquivo) {
+        this.temArquivo = temArquivo;
     }
     
    

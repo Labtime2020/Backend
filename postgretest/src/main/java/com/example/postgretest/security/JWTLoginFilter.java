@@ -89,11 +89,11 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, Authentication auth)
 		throws IOException, ServletException {
-                /*//aa
+                //aa
                 response.addHeader("Access-Control-Expose-Headers", "Authorization");
                 //bb
                 response.addHeader("Access-Control-Allow-Headers", ME01);
-                response.addHeader("Access-Control-Allow-Origin", "*");*/
+                response.addHeader("Access-Control-Allow-Origin", "*");
 		TokenAuthenticationService.addAuthentication(response, auth.getName(), auth.getAuthorities());
 	}
 
