@@ -40,6 +40,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/removeUserAsAdmin").permitAll()
                         .antMatchers("/updateUserStatus").hasRole("ADMIN")
                         .antMatchers("/alterarsenha/*").hasAnyRole("ADMIN", "USER")
+                        .antMatchers("/usuariologado/").hasAnyRole("ADMIN", "USER")
                         .antMatchers("/incrementar_erro/*").permitAll()
                         .antMatchers("/desbloquear*").permitAll()
                         .antMatchers("/addNorma").hasRole("ADMIN")

@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.commons.codec.digest.DigestUtils;
+
 
 
 @Service
@@ -42,7 +44,7 @@ public class FileSystemStorageService implements StorageService {
         public String toSHA1( MultipartFile file ) throws IOException
         {
             String sha1 = null;
-            MessageDigest digest;
+            /*MessageDigest digest;
             try
             {
                 digest = MessageDigest.getInstance( "SHA-1" );
@@ -59,6 +61,11 @@ public class FileSystemStorageService implements StorageService {
                 }
                 MessageDigest msgDigest = digestStream.getMessageDigest();
                 sha1 = new HexBinaryAdapter().marshal( msgDigest.digest() );
+            }*/
+            try{
+                sha1 = DigestUtils.sha1Hex(file.getBytes());
+            }catch(Exception e){
+                System.out.println("falha ao digerir");
             }
             return sha1;
         }

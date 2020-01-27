@@ -21,7 +21,7 @@ import java.time.LocalDate;
 
 import static com.example.postgretest.util.Status.*;
 
-import com.example.postgretest.model.UsuarioUI;
+import com.example.postgretest.model.UsuarioInfoUI;
 import com.example.postgretest.model.Usuario;
 
 @RestController
@@ -29,13 +29,12 @@ import com.example.postgretest.model.Usuario;
 public class SecurityController{
 	@Autowired 
     private UserRepository userRepository;
-
-	@GetMapping("/usuariologado")
-    public UsuarioUI currentUserName(Authentication authentication) {
+        
+    @PostMapping("/usuariologado")
+    public UsuarioInfoUI currentUserName(Authentication authentication) {
     	System.out.println(authentication.getName() + " eh o token");
     	Usuario user = userRepository.findByEmail(authentication.getName()).get(0);
 
-    	return new UsuarioUI((Long) user.getId(), user.getNome(), user.getEmail(), user.getSobrenome(), user.getIsAdmin(),
-    	 	user.getPassword(), user.getStatus());
+    	return user.toUsuarioInfoUI();
     }
 }

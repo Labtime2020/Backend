@@ -92,7 +92,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
                 //aa
                 response.addHeader("Access-Control-Expose-Headers", "Authorization");
                 //bb
-                response.addHeader("Access-Control-Allow-Headers", ME01);
+                //response.addHeader("Access-Control-Allow-Headers", ME01);
                 response.addHeader("Access-Control-Allow-Origin", "*");
 		TokenAuthenticationService.addAuthentication(response, auth.getName(), auth.getAuthorities());
 	}

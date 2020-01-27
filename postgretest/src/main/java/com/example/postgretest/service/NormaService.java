@@ -207,7 +207,7 @@ public class NormaService {
                 
                 Norma normaObject = new Norma(norma.getNormaId(), norma.getNome(), 
                     norma.getDescricao(), norma.getUrl(), new Date(), null, userChk.get(0), userChk.get(0), true, 0, 0);
-
+                
                 for(String tag: norma.tags){
                     Optional<Tag> test = tagRepository.findByNome(tag);
                     Tag tg;
@@ -228,7 +228,7 @@ public class NormaService {
                     if(checksum != null){
                         String recievedFileChecksum = storageService.toSHA1(file);
                         System.out.println(recievedFileChecksum);
-                        if(checksum.equals(recievedFileChecksum.toUpperCase()) == false){
+                        if(checksum.equals(recievedFileChecksum) == false && checksum.equals(recievedFileChecksum.toUpperCase()) == false){
                             System.out.println("Checksum diferente!");
                             throw new FileIntegrityException();
                         }
@@ -253,7 +253,7 @@ public class NormaService {
     }
     
     @PostMapping(path="/updateNorma")
-    public @ResponseBody Resposta updateNorma( Authentication auth,
+    public Resposta updateNorma( Authentication auth,
             MultipartFile file ,
              String n1,
             String checksum) throws JsonProcessingException{
@@ -268,10 +268,10 @@ public class NormaService {
         if( normaChk.isEmpty() ){
             return new Resposta(NORMA_INEXISTENTE, ME_C_0);
         }
-        else if( (normaChk.get().getArquivo() == null) && 
+        /*else if( (normaChk.get().getArquivo() == null) && 
                  ((norma.getUrl() == null && file == null )|| ( norma.getUrl() == null && file.isEmpty() == true )) )
-            return new Resposta(ERRO,ME17);
-        else if( (file.getSize()/1024) >= 100024 ){
+            return new Resposta(ERRO,ME17);*///nao eh necessario checar url nulo
+        else if( file != null && (file.getSize()/1024) >= 100024 ){
             return new Resposta(ERRO, ME_C_4);
         }
         else{
@@ -281,7 +281,7 @@ public class NormaService {
             try{
                 Optional<Norma> norma1 = normaRepository.findByNome(norma.getNome());
 
-                if(!norma1.isEmpty() &&
+                if(norma1 != null && !norma1.isEmpty() &&
                     norma1.get().getNormaId() != norma.getNormaId()
                   )/*se ja existe uma norma com o nome fornecido e essa norma tem um id diferente da norma atual, aborte*/
                 {
@@ -292,7 +292,8 @@ public class NormaService {
                     normaObject = normaRepository.findByNormaId(norma.getNormaId()).get();
                     if( norma.getNome() != null)
                         normaObject.setNome(norma.getNome());
-                    normaObject.setUrl(norma.getUrl());
+                    if(norma.getUrl() != null )
+                        normaObject.setUrl(norma.getUrl());
                     normaObject.setDescricao(norma.getDescricao());
 
                     normaObject.getTags().clear();
@@ -313,7 +314,7 @@ public class NormaService {
 
                     System.out.println(normaObject.getTags().size() + " Eh o numero de tags!!!!!!!");
 
-                    if( file != null && file.isEmpty() == false ){
+                    if( file != null  ){
                         
                         if(checksum != null){
                             String recievedFileChecksum = storageService.toSHA1(file);
