@@ -9,6 +9,7 @@ import com.example.postgretest.model.Norma;
 import com.example.postgretest.model.Usuario;
 import com.example.postgretest.model.NormaUI;
 import com.example.postgretest.model.TagUI;
+import com.example.postgretest.repository.ArquivoRepository;
 import com.example.postgretest.repository.NormaRepository;
 import com.example.postgretest.repository.TagRepository;
 
@@ -48,6 +49,8 @@ public class NormaController extends ResponseEntityExceptionHandler{
     NormaRepository normaRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    ArquivoRepository arquivoRepository;
     @Autowired
     private EmailSenderService javaMailSender;
     private Optional<Norma> normaChk;

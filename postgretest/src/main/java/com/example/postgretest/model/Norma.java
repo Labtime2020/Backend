@@ -61,6 +61,7 @@ public class Norma {
     private boolean isActive;/*situacao da norma*/
     private int download;
     private int visualizacao;
+    
 
     @ManyToMany(mappedBy="favoritos")
     private List<Usuario> usuarios = new ArrayList<Usuario>();
@@ -70,6 +71,10 @@ public class Norma {
             joinColumns = { @JoinColumn(name = "fk_norma")},
             inverseJoinColumns = { @JoinColumn(name = "fk_tag") })
     private List<Tag> tags = new ArrayList<Tag>();//tags dessa norma
+    
+    @OneToOne(mappedBy="norma")
+    //@JoinColumn(name="fk_fid")
+    private Arquivo arq;
 
     public List<Usuario> getUsuarios(){
     	return this.usuarios;
@@ -110,6 +115,10 @@ public class Norma {
         return norm;
     }
 
+    public Arquivo getArq() {
+        return arq;
+    }
+    
     public int getDownload() {
         return download;
     }
@@ -171,6 +180,11 @@ public class Norma {
     public String getArquivo() {
         return arquivo;
     }
+
+    public void setArq(Arquivo arq) {
+        this.arq = arq;
+    }
+    
 
     public void setNormaId(long normaId) {
         this.normaId = normaId;

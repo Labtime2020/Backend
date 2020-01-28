@@ -7,11 +7,13 @@ package com.example.postgretest.service;
 
 import com.example.postgretest.Controller.Resposta;
 import com.example.postgretest.exception.FileIntegrityException;
+import com.example.postgretest.model.Arquivo;
 import com.example.postgretest.model.Norma;
 import com.example.postgretest.model.NormaUI;
 import com.example.postgretest.model.Tag;
 import com.example.postgretest.model.TagUI;
 import com.example.postgretest.model.Usuario;
+import com.example.postgretest.repository.ArquivoRepository;
 import com.example.postgretest.repository.NormaRepository;
 import com.example.postgretest.repository.TagRepository;
 import com.example.postgretest.repository.UserRepository;
@@ -63,6 +65,8 @@ public class NormaService {
     NormaRepository normaRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    ArquivoRepository arquivoRepository;
     @Autowired
     private EmailSenderService javaMailSender;
     private Optional<Norma> normaChk;
@@ -175,6 +179,8 @@ public class NormaService {
         
         AtualizarEntrada(auth);
         
+        
+        
         List<Usuario> usuarioLogado = userRepository.findByEmail(auth.getName());
         
         if( usuarioLogado.isEmpty() == true)
@@ -223,29 +229,49 @@ public class NormaService {
                 }
                
 
-                if(file != null && file.isEmpty() == false){
+                if(file != null /*&& file.isEmpty() == false*/){
                     
                     if(checksum != null){
+                        System.out.println("Entrou!");
                         String recievedFileChecksum = storageService.toSHA1(file);
+                        System.out.println("Saiu!");
                         System.out.println(recievedFileChecksum);
                         if(checksum.equals(recievedFileChecksum) == false && checksum.equals(recievedFileChecksum.toUpperCase()) == false){
                             System.out.println("Checksum diferente!");
                             throw new FileIntegrityException();
                         }
+                        else{
+                            normaRepository.save(normaObject);//salvo a norma no banco de dados
+                            System.out.println("Id da norma:" + normaObject.getNormaId());// teste para ver se o id eh atualizado
+                            Arquivo arq = new Arquivo(
+                                1344, 
+                                normaObject.getNormaName_File() + "." +
+                                storageService.getExtensao(file.getOriginalFilename()),
+                                normaObject
+                            );
+                            
+                            System.out.println("endereco do arquivo " + arq.getFilename());
+                            
+                            try{
+                                storageService.salvar(file, arq.getFilename());
+                            }catch(Exception e){
+                                e.printStackTrace();
+                                System.out.println("Falha ao salvar arquivo");
+                                return new Resposta(ERRO, "Falha ao salvar,aborte tudo!");
+                            }
+                            
+                            arquivoRepository.save(arq);
+                            
+                            System.out.println("Values");
+                            return new Resposta(1, "suceso");
+                        }
+                    }
+                    else{
+                        return new Resposta(ERRO, "Nao eh possivel enviar arquivo sem checksum no corpo!");
                     }
                     
-                   normaObject.setArquivo(normaObject.getNormaName_File() + "." +
-                    storageService.getExtensao(file.getOriginalFilename()));
                 }
-
                 normaRepository.save(normaObject);
-                
-                try{
-                    storageService.salvar(file, normaObject.getArquivo());
-                }catch(Exception e){
-                    e.printStackTrace();
-                    System.out.println("Falha ao salvar arquivo");
-                }
 
                 return new Resposta(OK, "Norma cadastrada com sucesso");
             }
@@ -276,7 +302,8 @@ public class NormaService {
         }
         else{
             Norma normaAntiga = normaChk.get();//salvo a norma antiga para enviar email com alteracoes
-            String tmpPath = normaAntiga.getArquivo();
+            Optional <Arquivo> arqChk = arquivoRepository.findByNorma(norma.getNormaId());// obtencao do arquivo para modificacao
+            
             
             try{
                 Optional<Norma> norma1 = normaRepository.findByNome(norma.getNome());
@@ -298,6 +325,8 @@ public class NormaService {
 
                     normaObject.getTags().clear();
 
+                    
+                    
                     for(String tag: norma.tags){
                         Optional<Tag> test = tagRepository.findByNome(tag);
                         Tag tg;
@@ -315,19 +344,42 @@ public class NormaService {
                     System.out.println(normaObject.getTags().size() + " Eh o numero de tags!!!!!!!");
 
                     if( file != null  ){
-                        
                         if(checksum != null){
                             String recievedFileChecksum = storageService.toSHA1(file);
                             System.out.println(recievedFileChecksum);
-                            if(checksum.equals(recievedFileChecksum.toUpperCase()) == false){
+                            if(checksum.equals(recievedFileChecksum) == false && checksum.equals(recievedFileChecksum.toUpperCase()) == false){
                                 System.out.println("Checksum diferente!");
                                 throw new FileIntegrityException();
                             }
+                            else{
+                                if(arqChk.isEmpty()){
+                                   System.out.println("Náo foi encontrada arquivo relacionado a esta norma!");
+                                   return new Resposta(ERRO, "Falha ao encontrar arquivo com esta reposta!");
+                                }
+                                else{
+                                    Arquivo arq = arqChk.get();
+                                    arq.setFilename(normaObject.getNormaName_File() + "." + storageService.getExtensao(file.getOriginalFilename()));
+                                
+                                    try{
+                                        System.out.println(normaAntiga.getNormaName_File());
+
+                                        String tmpPath = arq.getFilename();
+                                        storageService.remover(tmpPath);
+                                        storageService.salvar(file, normaObject.getArquivo());
+
+                                    }catch(Exception e){
+                                        System.out.println("Deu ruim");
+                                    }
+                                    arquivoRepository.save(arq);
+                                }
+//                                normaObject.setArquivo(normaObject.getNormaName_File() + "." +
+//                                               storageService.getExtensao(file.getOriginalFilename())
+//                                );
+                            }
                         }
-                        
-                        normaObject.setArquivo(normaObject.getNormaName_File() + "." +
-                                               storageService.getExtensao(file.getOriginalFilename())
-                        );
+                        else{
+                            return new Resposta(ERRO, "Nao eh possivel enviar arquivo sem checksum no corpo!");
+                        }
                     }
                     
                     if(normaObject.getUsuarios().isEmpty() == false){
@@ -347,16 +399,7 @@ public class NormaService {
 
                     normaRepository.save(normaObject);
 
-                    try{
-                        System.out.println(normaAntiga.getNormaName_File());
-                        
-                        
-                        storageService.remover(tmpPath);
-                        storageService.salvar(file, normaObject.getArquivo());
-                        
-                    }catch(Exception e){
-                        System.out.println("Deu ruim");
-                    }
+                    
                 }
                 
             }catch(Exception e){
