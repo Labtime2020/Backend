@@ -239,6 +239,7 @@ public class NormaService {
                         if(checksum.equals(recievedFileChecksum) == false && checksum.equals(recievedFileChecksum.toUpperCase()) == false){
                             System.out.println("Checksum diferente!");
                             throw new FileIntegrityException();
+                            
                         }
                         else{
                             normaRepository.save(normaObject);//salvo a norma no banco de dados
@@ -263,7 +264,7 @@ public class NormaService {
                             arquivoRepository.save(arq);
                             
                             System.out.println("Values");
-                            return new Resposta(1, "suceso");
+                            return new Resposta(OK, MS01);
                         }
                     }
                     else{
@@ -288,15 +289,15 @@ public class NormaService {
         ObjectMapper obj = new ObjectMapper();
         NormaUI norma = obj.readValue(n1, NormaUI.class);
         
-        /*EH POSSIVEL CHECAR SE ARQUIVO FOI MUDADO, MAS PARA ISSO EH PRECISO PERSISTIR O CHECKSUM NO BANCO DE DADOS*/
+        //EH POSSIVEL CHECAR SE ARQUIVO FOI MUDADO, MAS PARA ISSO EH PRECISO PERSISTIR O CHECKSUM NO BANCO DE DADOS
         
         normaChk = normaRepository.findByNormaId(norma.getNormaId());
-        if( normaChk.isEmpty() ){
+        if( normaChk.isEmpty() ){//nao existe norma com ID fornecido
             return new Resposta(NORMA_INEXISTENTE, ME_C_0);
         }
-        /*else if( (normaChk.get().getArquivo() == null) && 
-                 ((norma.getUrl() == null && file == null )|| ( norma.getUrl() == null && file.isEmpty() == true )) )
-            return new Resposta(ERRO,ME17);*///nao eh necessario checar url nulo
+        //else if( (normaChk.get().getArquivo() == null) && 
+                 //((norma.getUrl() == null && file == null )|| ( norma.getUrl() == null && file.isEmpty() == true )) )
+            //return new Resposta(ERRO,ME17);//nao eh necessario checar url nulo
         else if( file != null && (file.getSize()/1024) >= 100024 ){
             return new Resposta(ERRO, ME_C_4);
         }
@@ -304,30 +305,31 @@ public class NormaService {
             Norma normaAntiga = normaChk.get();//salvo a norma antiga para enviar email com alteracoes
             Optional <Arquivo> arqChk = arquivoRepository.findByNorma(norma.getNormaId());// obtencao do arquivo para modificacao
             
+           
             
             try{
                 Optional<Norma> norma1 = normaRepository.findByNome(norma.getNome());
 
                 if(norma1 != null && !norma1.isEmpty() &&
                     norma1.get().getNormaId() != norma.getNormaId()
-                  )/*se ja existe uma norma com o nome fornecido e essa norma tem um id diferente da norma atual, aborte*/
+                  )//se ja existe uma norma com o nome fornecido e essa norma tem um id diferente da norma atual, aborte
                 {
                     System.out.println(ME15 + ". Abortando...");
                     return new Resposta(NORMAJAEXISTE, ME15);
                 }
                 else{
-                    normaObject = normaRepository.findByNormaId(norma.getNormaId()).get();
+                    normaObject = normaRepository.findByNormaId(norma.getNormaId()).get();//norma passada pelo JSON eh obtida!
                     if( norma.getNome() != null)
                         normaObject.setNome(norma.getNome());
                     if(norma.getUrl() != null )
                         normaObject.setUrl(norma.getUrl());
-                    normaObject.setDescricao(norma.getDescricao());
+                    if(norma.getDescricao() != null )
+                        normaObject.setDescricao(norma.getDescricao());
 
                     normaObject.getTags().clear();
-
-                    
                     
                     for(String tag: norma.tags){
+                        
                         Optional<Tag> test = tagRepository.findByNome(tag);
                         Tag tg;
 
@@ -353,7 +355,7 @@ public class NormaService {
                             }
                             else{
                                 if(arqChk.isEmpty()){
-                                   System.out.println("Náo foi encontrada arquivo relacionado a esta norma!");
+                                   System.out.println("Nao foi encontrada arquivo relacionado a esta norma!");
                                    return new Resposta(ERRO, "Falha ao encontrar arquivo com esta reposta!");
                                 }
                                 else{
@@ -362,10 +364,10 @@ public class NormaService {
                                 
                                     try{
                                         System.out.println(normaAntiga.getNormaName_File());
-
-                                        String tmpPath = arq.getFilename();
-                                        storageService.remover(tmpPath);
                                         storageService.salvar(file, normaObject.getArquivo());
+                                        //String tmpPath = arq.getFilename();
+                                        //storageService.remover(tmpPath);
+                                        
 
                                     }catch(Exception e){
                                         System.out.println("Deu ruim");
@@ -405,6 +407,7 @@ public class NormaService {
             }catch(Exception e){
                 e.printStackTrace();
             }   
+           
         }
         return new Resposta(OK, MS01);
     }
