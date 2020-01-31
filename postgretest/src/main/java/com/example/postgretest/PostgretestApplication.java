@@ -22,7 +22,7 @@ public class PostgretestApplication {
 	@Bean
 	CommandLineRunner init(StorageService storageService) {
 		return (args) -> {
-			storageService.deleteAll();
+			//there will be no deletion!//storageService.deleteAll();
 			storageService.init();
 		};
 	}

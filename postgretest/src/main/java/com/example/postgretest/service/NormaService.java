@@ -69,6 +69,8 @@ public class NormaService {
     ArquivoRepository arquivoRepository;
     @Autowired
     private EmailSenderService javaMailSender;
+    @Autowired
+    private ArquivoService arquivoService;
     private Optional<Norma> normaChk;
     private List<Usuario> userChk;
     private Norma normaObject;
@@ -130,19 +132,28 @@ public class NormaService {
         List<NormaUI> normas = new ArrayList<>();
 
         for(Norma norma: norms){
-            normas.add(norma.toNormaUI());
+            NormaUI normaUI_component = norma.toNormaUI();
+            if(arquivoService.temArquivo(normaUI_component.getNormaId()) == true)
+                normaUI_component.temArquivo = true;
+            else
+                normaUI_component.temArquivo = false;
+            
+            normas.add(normaUI_component);
         }
 
         return normas;
     }
+    
 
     @PostMapping(path="/obterArquivoNorma")
     public ResponseEntity<Resource> obterArquivoNorma(Authentication auth, NormaUI norma){
         AtualizarEntrada(auth);
         
         Optional<Norma> n1 = normaRepository.findByNormaId(norma.getNormaId());
-        if( n1.isEmpty() == false ){
-            Resource file = storageService.loadAsResource(n1.get().getArquivo());
+        Optional<Arquivo> arqchk = arquivoRepository.findByNorma(norma.getNormaId());//obtenho a tupla de arquivo relacionada a norma no banco de dados
+        if( n1.isEmpty() == false && arqchk.isEmpty() == false ){// se existe arquivo para aquela norma , entao obtneha tudo!
+            Arquivo arq = arqchk.get();
+            Resource file = storageService.loadAsResource(arq.getFilename());
             Norma n2 = n1.get();
             n2.setDownload(n2.getDownload()+1);
             normaRepository.save(n2);
@@ -355,28 +366,29 @@ public class NormaService {
                             }
                             else{
                                 if(arqChk.isEmpty()){
-                                   System.out.println("Nao foi encontrada arquivo relacionado a esta norma!");
-                                   return new Resposta(ERRO, "Falha ao encontrar arquivo com esta reposta!");
+                                   System.out.println("Esta norma nao possui arquivo!");
+                                   return new Resposta(ERRO, "Falha ao encontrar arquivo");
                                 }
                                 else{
-                                    Arquivo arq = arqChk.get();
-                                    arq.setFilename(normaObject.getNormaName_File() + "." + storageService.getExtensao(file.getOriginalFilename()));
+                                    Arquivo arq = arqChk.get();//seleciono a tupla do arquivo
+                                    String tmpPath = arq.getFilename();//obtenho o arquivo antigo para remove-lo
+                                    arq.setFilename(normaObject.getNormaName_File() + "." + storageService.getExtensao(file.getOriginalFilename()));//altero o nome do arquivo para posteriormente salva-lo no bd
                                 
                                     try{
                                         System.out.println(normaAntiga.getNormaName_File());
-                                        storageService.salvar(file, normaObject.getArquivo());
-                                        //String tmpPath = arq.getFilename();
-                                        //storageService.remover(tmpPath);
+                                        storageService.salvar(file, arq.getFilename());
                                         
+                                        if(arq.getFilename().equals(tmpPath) == false) try{//se o nome do arquivo enviado é diferente(nome da norma mudou com um arquivo),entao o remova.
+                                            storageService.remover(tmpPath);
+                                        }catch(Exception e){
+                                            throw new Exception("Falha ao remover");
+                                        }
 
                                     }catch(Exception e){
-                                        System.out.println("Deu ruim");
+                                        throw new Exception("Falha ao salvar!");
                                     }
                                     arquivoRepository.save(arq);
                                 }
-//                                normaObject.setArquivo(normaObject.getNormaName_File() + "." +
-//                                               storageService.getExtensao(file.getOriginalFilename())
-//                                );
                             }
                         }
                         else{
@@ -444,3 +456,4 @@ public class NormaService {
         return new Resposta(OK,MS01);
     }
 }
+

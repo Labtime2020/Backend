@@ -5,6 +5,7 @@
  */
 package com.example.postgretest.model;
 
+import com.example.postgretest.repository.ArquivoRepository;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,11 +25,16 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import com.example.postgretest.service.NormaService;
+import org.springframework.beans.factory.annotation.Autowire;
+import org.springframework.stereotype.Component;
 /**
  *
  * @author labtime
  */
+
 @Entity
 @Table(name="norma", uniqueConstraints = @UniqueConstraint(columnNames = "nome", name = "uniqueName"))
 public class Norma {
@@ -44,8 +50,7 @@ public class Norma {
     private String descricao;
     @Column(length=200)
     private String url;
-    @Column
-    private String arquivo;
+    
     @Column
     @Temporal(TemporalType.DATE)
     private Date registerDate;
@@ -76,9 +81,12 @@ public class Norma {
     //@JoinColumn(name="fk_fid")
     private Arquivo arq;
 
+    
     public List<Usuario> getUsuarios(){
     	return this.usuarios;
     }
+    
+    
     
     public Norma(long normaId, String nome, String descricao, String url, Date registerDate, Date deletionDate, 
     	Usuario creationUser, Usuario deletionUser, boolean isActive, int download, int visualizacao) {
@@ -98,15 +106,15 @@ public class Norma {
     public Norma(){
         
     }
-
+    
     public NormaUI toNormaUI(){
+        
         System.out.println("Qtde de visualizacoes>>>> " + this.visualizacao);
         NormaUI norm = new NormaUI(this.getNormaId(), this.getNome(), this.getDescricao(), this.getUrl(), this.isIsActive(), this.getVisualizacao(), this.getDownload());
         
-        if( this.arquivo != null )
-            norm.temArquivo = true;
-        else
-            norm.temArquivo = false;
+        
+        //norm.temArquivo = ( arquivoRepository.findByNorma(this.normaId).isEmpty() == true ) ? false : true;
+            
         
         for(Tag tag: this.getTags()){
             norm.tags.add(tag.getNome());
@@ -177,9 +185,9 @@ public class Norma {
         return this.isActive;
     }
 
-    public String getArquivo() {
-        return arquivo;
-    }
+//    public String getArquivo() {
+//        return arquivo;
+//    }
 
     public void setArq(Arquivo arq) {
         this.arq = arq;
@@ -218,9 +226,9 @@ public class Norma {
         this.deletionUser = deletionUser;
     }
     
-    public void setArquivo(String arquivo) {
-        this.arquivo = arquivo;
-    }    
+//    public void setArquivo(String arquivo) {
+//        this.arquivo = arquivo;
+//    }    
     
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;

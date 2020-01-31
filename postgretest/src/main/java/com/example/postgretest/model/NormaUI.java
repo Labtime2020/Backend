@@ -23,6 +23,7 @@ public class NormaUI implements Comparable<NormaUI>{
     public int visualizacao;
     public int download;
     public boolean temArquivo;
+    
 
     public NormaUI(long normaId, String nome, String descricao, String url, boolean isActive, int visualizacao, int download) {
         this.normaId = normaId;
